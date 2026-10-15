@@ -1,0 +1,18 @@
+# TLS certificates and the server_name are deployment-specific.
+server {
+    listen 443 ssl;
+    server_name oni.example.org;
+    ssl_certificate /etc/letsencrypt/live/oni.example.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/oni.example.org/privkey.pem;
+    client_max_body_size 100m;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 1900s; # optional native provisioning can download a game-server release
+        proxy_buffering off;
+    }
+}

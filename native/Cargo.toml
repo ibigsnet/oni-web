@@ -1,0 +1,32 @@
+[package]
+name = "oni-web-native"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.82"
+license = "GPL-3.0-or-later"
+description = "Headless adapter for upstream ONI RCON hosting and SSH discovery"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = { version = "0.28", features = ["rustls-tls-webpki-roots"] }
+futures-util = "0.3"
+toml = "0.9"
+toml_edit = "0.25"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream", "json"] }
+sha2 = "0.10"
+hex = "0.4"
+regex = "1"
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.9"
+dirs = "6"
+uuid = { version = "1", features = ["v4"] }
+url = "2"
+parking_lot = "0.12"
+once_cell = "1"
+tempfile = "3"
+
+[profile.release]
+strip = true
+lto = true

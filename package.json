@@ -1,0 +1,11 @@
+{
+  "name": "oni-web",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix frontend test",
+    "test:core": "node --test tests/frontend.test.mjs"
+  }
+}

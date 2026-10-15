@@ -1,0 +1,175 @@
+/* ONI: charcoal, amber primary, holo cyan, red for anything that bites. Colours come from the `oni` theme. */
+Screen { background: $background; }
+
+#masthead { height: 1; padding: 0 1; background: $panel; color: $foreground; }
+#body { height: 1fr; }
+#banner { display: none; height: 1; padding: 0 1; }
+#banner.-on { display: block; background: $error; color: $background; }
+#banner.-on.-warn { background: $warning; }
+#banner.-on.-dim { background: $error 55%; }
+#banner.-on.-warn.-dim { background: $warning 55%; }
+
+#sidebar { width: 36; border-right: vkey $primary 40%; }
+#stations { height: 1fr; background: $background; }
+#stations { height: auto; max-height: 1fr; }
+/* no background transitions here: Textual doesn't repaint the card inside, so it keeps the old colour */
+#stations > ListItem { padding: 0 1; height: 4; border-bottom: hkey $panel-lighten-1; background: $background; }
+#stations > ListItem:hover { background: $primary 8%; }
+#stations > ListItem.-highlight { background: $primary 15%; }
+#stations:focus > ListItem.-highlight { background: $primary 25%; }
+.card { height: 3; }
+/* a fleet: two-line cards, told apart by shade instead of a rule */
+.-fleet #stations > ListItem { height: 2; border-bottom: none; }
+.-fleet .card { height: 2; }
+.-fleet #stations > ListItem:odd { background: $panel; }
+.-fleet #stations > ListItem:hover { background: $primary 8%; }
+.-fleet #stations > ListItem.-highlight { background: $primary 15%; }
+.-fleet #stations:focus > ListItem.-highlight { background: $primary 25%; }
+#add-server { width: 100%; margin: 1 1 0 1; background: $background; color: $text-muted; text-style: none; }
+#add-server:hover, #add-server:focus { color: $primary; background: $primary 10%; }
+#sidebar > Center { height: 1fr; align-vertical: middle; }
+#super { height: auto; padding: 1 1 0 1; border-top: hkey $primary 40%; }
+#uplink { height: auto; padding: 1; border-top: hkey $primary 40%; }
+
+#tabs { width: 1fr; }
+/* under 140 columns (Windows Terminal opens at 120): a slimmer sidebar and player file */
+.-narrow #sidebar { width: 30; }
+.-narrow #dossier-box { min-width: 36; }
+.-narrow #player-actions { grid-size: 3; }
+/* 200 columns and up: room for whole server names */
+.-wide #sidebar { width: 46; }
+#tabs TabPane.-from { offset-x: 4; }
+#tabs TabPane.-slide { transition: offset 220ms out_cubic; }
+DataTable, RichLog, #sitrep, #dossier-box, #theatre, #listing-box, #host-box, #workaround, #health-setup {
+    border: round $primary 35%;
+    border-title-color: $primary;
+    background: $background;
+}
+DataTable:focus, RichLog:focus, #dossier-box:focus-within, #listing-box:focus-within { border: round $secondary; border-title-color: $secondary; }
+RichLog { border-subtitle-color: $warning; }
+DataTable > .datatable--header { background: $panel; color: $primary; text-style: none; }
+DataTable > .datatable--cursor { background: $primary 30%; color: $foreground; }
+
+Assets { height: 1fr; }
+#players { width: 3fr; height: 1fr; }
+#dossier-box { width: 2fr; min-width: 44; height: 1fr; padding: 0 1; }
+#player-actions { height: auto; grid-size: 4; grid-gutter: 1 1; margin: 1 0; }
+#player-actions Button { width: 1fr; min-width: 0; }
+#raw-box { background: $background; border-top: hkey $primary 25%; padding: 0; }
+#raw-box CollapsibleTitle { color: $text-muted; padding: 0; }
+#raw-box CollapsibleTitle:hover, #raw-box CollapsibleTitle:focus { color: $secondary; background: transparent; }
+#raw-box Contents { padding: 0; }
+
+#filters { height: 1; margin: 0 1; }
+#filters Checkbox { height: 1; border: none; padding: 0 2 0 0; background: transparent; }
+#feed { height: 1fr; padding: 0 1; }
+#say { margin: 0 0 0 0; }
+
+#ops-top { height: auto; }
+#sitrep { width: 1fr; min-width: 40; height: auto; padding: 0 1; }
+#ops-panel { width: 2fr; height: auto; padding: 0 1; }
+.ops-head { color: $primary 70%; margin-top: 1; }
+.ops-grid { height: auto; grid-size: 3; grid-gutter: 1 1; margin-top: 1; }
+.ops-grid Button { width: 1fr; min-width: 0; }
+/* under 120 columns the tab is too narrow for both: the buttons squeezed to nothing, and Textual raised measuring them */
+.-tight #ops-top { layout: vertical; }
+.-tight #sitrep, .-tight #ops-panel { width: 100%; min-width: 0; }
+#ops-bottom { height: 1fr; min-height: 6; }
+#rotation { width: 1fr; height: 1fr; }
+#theatre { width: 1fr; height: 1fr; padding: 0 1; }
+
+Blacklist { height: 1fr; }
+#bans { height: 2fr; }
+#vpn { height: 1fr; }
+.bar { height: auto; padding: 0 1; }
+.bar Button { margin-right: 1; min-width: 0; }
+
+#console-log { height: 1fr; padding: 0 1; }
+
+#health-setup { height: 1fr; padding: 1 2; }
+#crashes { height: 1fr; }
+#health-bottom { height: 1fr; min-height: 12; }
+#host-box { width: 3fr; height: 1fr; padding: 0 1; }
+#host { height: auto; }
+#containers { height: 1fr; scrollbar-size-horizontal: 0; }
+#workaround { width: 2fr; height: 1fr; padding: 0 1; }
+.-tight #health-bottom { layout: vertical; }
+
+ForgePane { height: 1fr; }
+#forge-bar { height: auto; }
+#forge-q { width: 1fr; }
+#forge-sort { width: 22; }
+#forge-window { width: 13; }
+#forge-main { height: 1fr; }
+#listings { width: 3fr; height: 1fr; }
+#listing-box { width: 2fr; min-width: 44; height: 1fr; padding: 0 1; border-subtitle-color: $text-muted; }
+#versions { height: auto; max-height: 10; margin-top: 1; scrollbar-size-horizontal: 0; }
+#forge-actions { height: auto; grid-size: 3; grid-gutter: 1 1; margin: 1 0; }
+#forge-actions Button { width: 1fr; min-width: 0; }
+#forge-raw-box { background: $background; border-top: hkey $primary 25%; padding: 0; }
+#forge-raw-box CollapsibleTitle { color: $text-muted; padding: 0; }
+#forge-raw-box CollapsibleTitle:hover, #forge-raw-box CollapsibleTitle:focus { color: $secondary; background: transparent; }
+#forge-raw-box Contents { padding: 0; }
+#forge-credit { margin-top: 1; border-top: hkey $primary 25%; padding-top: 1; }
+.-narrow #listing-box { min-width: 36; }
+#console-bar { height: auto; }
+#cmd { width: 1fr; }
+#raw { width: auto; }
+
+/* no bold anywhere: in most terminal fonts it reads heavy, so colour carries the emphasis instead */
+Button, Button:disabled { text-style: none; }
+FooterKey .footer-key--key, Toast .toast--title, Tab.-active { text-style: none; }
+Button:disabled { opacity: 45%; }
+.-hidden { display: none; }
+
+/* dialogs */
+ModalScreen { align: center middle; background: $background 75%; transition: background 200ms; }
+ModalScreen.-enter { background: $background 0%; }
+.dialog {
+    width: 68; height: auto; max-height: 90%; padding: 1 2; background: $surface; border: thick $primary;
+    transition: offset 220ms out_cubic;
+}
+ModalScreen.-enter .dialog { offset-y: 3; }
+.dialog-keys { color: $text-muted; margin-top: 1; text-align: right; }
+.dialog Input.-missing, .dialog Select.-missing { border: tall $error; background: $error 20%; }
+.dialog.help { width: 96; height: 90%; }
+#help-body { height: 1fr; scrollbar-size-vertical: 1; }
+.dialog.danger { border: thick $error; }
+.dialog-title { color: $primary; margin-bottom: 1; }
+.danger .dialog-title { color: $error; }
+.dialog-body { color: $text-muted; margin-bottom: 1; }
+.dialog Label { color: $secondary; margin-top: 1; }
+.dialog-buttons { height: auto; align-horizontal: right; margin-top: 1; }
+.dialog-buttons Button { margin-left: 1; }
+.pick { height: auto; }
+#pick-list { height: auto; max-height: 20; border: round $primary 35%; background: $background; text-wrap: nowrap;
+             text-overflow: ellipsis; }
+
+/* boot */
+#boot { align: center middle; background: $background; }
+#boot-title { width: 100%; text-align: center; }
+#boot-emblem, #crest { width: auto; }
+#crest { margin: 1 0; }
+#boot-log { width: 64; height: auto; margin-top: 2; }
+
+/* setup */
+#setup { align-horizontal: center; padding: 0 2; }
+#setup-emblem { width: auto; }
+#setup-main { width: auto; height: auto; }
+#setup-side { width: auto; margin: 1 2 0 0; display: none; }  /* fit_emblem shows it */
+#setup-title { width: 100%; text-align: center; margin: 1 0; }
+#setup-form { width: 100; max-height: 1000; padding: 0 2; border-title-color: $primary; }
+.setup-row { height: auto; }
+.setup-wide { width: 1fr; height: auto; }
+.setup-col2 { margin-left: 2; }
+.setup-narrow { width: 16; height: auto; margin-left: 2; }
+.hint { color: $text-muted; }
+#setup-ssh { margin-top: 1; background: $surface; padding: 0; border-top: none; }
+#setup-ssh CollapsibleTitle { color: $secondary; padding: 0; }
+#setup-ssh Contents { padding: 0 0 0 2; }
+#remember { background: transparent; border: none; padding: 0; margin: 1 2 0 0; width: auto; }
+#remember-hint { margin-top: 1; width: 1fr; }
+#setup-status { margin-top: 1; height: auto; }
+#setup-list { height: auto; }
+#setup-form .dialog-buttons { margin-top: 0; }
+.setup-gap { width: 1fr; }

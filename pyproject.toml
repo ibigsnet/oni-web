@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+pythonpath = ["backend", "backend/vendor"]
+testpaths = ["tests"]
+norecursedirs = ["upstream"]
+filterwarnings = ["error::ResourceWarning"]
+
+[tool.ruff]
+line-length = 110
+exclude = ["backend/vendor"]

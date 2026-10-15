@@ -1,0 +1,1528 @@
+{
+  "repository": "https://github.com/viik2k/oni-rcon",
+  "commit": "a9550908bf838a55b0f705862d00a431c919bbb2",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 66,
+      "sha256": "fd130543dd2c1a23cfdb620c650c0642ebf1d79559e7fd6eaf2492566a5baea1"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 355,
+      "sha256": "adafe8a01b28d490e1a1fc4c5da55821ddaa7f3acecf2f28c37767274ec03a5a",
+      "lines": 15
+    },
+    {
+      "path": ".github/workflows/desktop.yml",
+      "bytes": 4823,
+      "sha256": "6ff3e8e6f9e93d2cd4fe9f4e7bb248fb27253d30bc9af8a0d419688944abc03a",
+      "lines": 104
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "bytes": 1693,
+      "sha256": "0af941db460a59211f849349e8edb349bc69334d5d851d3210cbcf8c4422683e",
+      "lines": 46
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 243,
+      "sha256": "025e1a9b47ffdc0c61768c39a95599546d95b315edd93fdb2a69eac22c9d262d"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "NOTICE",
+      "bytes": 1658,
+      "sha256": "55a96414e25e111d0c7c9957fa0666a269775d18f3915f6d7d8e280ac5af3fdf"
+    },
+    {
+      "path": "README.md",
+      "bytes": 39244,
+      "sha256": "2c6a112f268cdeca9645907f8a411604cfb9eab3de3e597fbbd49b28321ee055",
+      "lines": 537
+    },
+    {
+      "path": "desktop/.gitignore",
+      "bytes": 53,
+      "sha256": "768cbe8eefe3381633e8698ad64f3c90df67bdf9dabdae238f5be68e8bd3c640"
+    },
+    {
+      "path": "desktop/README.md",
+      "bytes": 5633,
+      "sha256": "74b17b23fb6f739949ed320e8b272a01fcab5c7bff6d70629bd697465126eb2e",
+      "lines": 85
+    },
+    {
+      "path": "desktop/docs/console.png",
+      "bytes": 167865,
+      "sha256": "8d2aad72b345c8eb4d28a358a0d9fc3db3248743b411152555ab3e84f4808417"
+    },
+    {
+      "path": "desktop/docs/installation04.png",
+      "bytes": 26629,
+      "sha256": "063522ddf730630d532cc8e8ab09e84f1133bc7ae3f1907dd0940ea8f195d7b2"
+    },
+    {
+      "path": "desktop/docs/superintendent.png",
+      "bytes": 33206,
+      "sha256": "53c7641479473c50de2bc20845d3c0c121dfa07415820533ed1f67a8d73c5073"
+    },
+    {
+      "path": "desktop/index.html",
+      "bytes": 295,
+      "sha256": "6bca9bb48362be658b22d563f9f0b1e552a81948221a442af7f042b0d163afbe",
+      "lines": 12
+    },
+    {
+      "path": "desktop/package-lock.json",
+      "bytes": 86204,
+      "sha256": "7b03372e4a226c3124282f034bea25cf506b662e1caba122c48bd1267fa17fd8",
+      "lines": 2570
+    },
+    {
+      "path": "desktop/package.json",
+      "bytes": 728,
+      "sha256": "d2e8b85b1c76ebc4f702894f0070bb8330ee0f977d590b525932b033afd73910",
+      "lines": 30
+    },
+    {
+      "path": "desktop/release.mjs",
+      "bytes": 2281,
+      "sha256": "3da823f73ab776719d6216e214d116fcc60edd408b3d84add47a51753199fc2d",
+      "lines": 43
+    },
+    {
+      "path": "desktop/src-tauri/Cargo.lock",
+      "bytes": 142064,
+      "sha256": "4b8a97fff245c4d5797497cd4a612e61d29302a46daa9adc66e298cb3c3ae153"
+    },
+    {
+      "path": "desktop/src-tauri/Cargo.toml",
+      "bytes": 1227,
+      "sha256": "0864e20d93f923955c801fd7c3a72bc2eb4703dcfae9c4fe5bead2b752cb2aed",
+      "lines": 49
+    },
+    {
+      "path": "desktop/src-tauri/build.rs",
+      "bytes": 39,
+      "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f",
+      "lines": 3
+    },
+    {
+      "path": "desktop/src-tauri/capabilities/default.json",
+      "bytes": 243,
+      "sha256": "deab7914b3c2970c317e206bbabf7a34feb3205fe332282ebd696b4d8733e838",
+      "lines": 7
+    },
+    {
+      "path": "desktop/src-tauri/icons/128x128.png",
+      "bytes": 14337,
+      "sha256": "aa05b15c0d5ea3f093a2cdfbb6afba208e453ca1ec34fe1f4760f5a808ec2f99"
+    },
+    {
+      "path": "desktop/src-tauri/icons/128x128@2x.png",
+      "bytes": 35445,
+      "sha256": "34deaed349e743ede53be28dfc2a1cfe7961d1bb866e1042bf68649003fa16a6"
+    },
+    {
+      "path": "desktop/src-tauri/icons/32x32.png",
+      "bytes": 2212,
+      "sha256": "43bdbf78f10907a89a096924177fc388e9803d9ba3fbf20aea27976f96553856"
+    },
+    {
+      "path": "desktop/src-tauri/icons/64x64.png",
+      "bytes": 5534,
+      "sha256": "3f88ca2ecf43679d76f757ada42b531a0be9013bebea7ffd2be3d9c2169af8ac"
+    },
+    {
+      "path": "desktop/src-tauri/icons/Square107x107Logo.png",
+      "bytes": 11210,
+      "sha256": "f84849c0e485d0614bc59220be16530d3709bc3962fd988f5528b1db87de0c72"
+    },
+    {
+      "path": "desktop/src-tauri/icons/Square142x142Logo.png",
+      "bytes": 16370,
+      "sha256": "bb537dbc3704606f2d30c2683c171ac76d9c5fcd25015180721719332cd71d6f"
+    },
+    {
+      "path": "desktop/src-tauri/icons/Square150x150Logo.png",
+      "bytes": 17658,
+      "sha256": "848aeab5a2f55815f72dadf0e0be6994f35319629c14d62edbe980061b42be96"
+    },
+    {
+      "path": "desktop/src-tauri/icons/Square284x284Logo.png",
+      "bytes": 43002,
+      "sha256": "38cf28e64a6a24eccb289847b5f7291859d9f02c5f0243181fba246220c000c4"
+    },
+    {
+      "path": "desktop/src-tauri/icons/Square30x30Logo.png",
+      "bytes": 2027,
+      "sha256": "d47af73c65be99b81cf1d5639f4c4ba47b5a771d9d4fb5e8cf0acb8587370c9f"
+    },
+    {
+      "path": "desktop/src-tauri/icons/Square310x310Logo.png",
+      "bytes": 49056,
+      "sha256": "12861b1fe1661c2eea4148bf6a059ca8408d4e8ff84f13aa2268e23d69672462"
+    },
+    {
+      "path": "desktop/src-tauri/icons/Square44x44Logo.png",
+      "bytes": 3417,
+      "sha256": "945f9a9acc919498fee80a0e8c8e03f6ccd8c46538055a3bc4a9cadc430cc67c"
+    },
+    {
+      "path": "desktop/src-tauri/icons/Square71x71Logo.png",
+      "bytes": 6458,
+      "sha256": "cb088259a7159ca40a5d4491c046899de3b6f7a0fb733a4a83ff0bef4173f4da"
+    },
+    {
+      "path": "desktop/src-tauri/icons/Square89x89Logo.png",
+      "bytes": 8695,
+      "sha256": "ff21bbeea84a95822f67c66d45a6083d669e43ac47713ed7a4e2c9f0e4169da7"
+    },
+    {
+      "path": "desktop/src-tauri/icons/StoreLogo.png",
+      "bytes": 3967,
+      "sha256": "a2126fb3847a96650e413db9aaadf9501651b53d5b5006f3bd13b6609dd6859a"
+    },
+    {
+      "path": "desktop/src-tauri/icons/icon.icns",
+      "bytes": 343911,
+      "sha256": "bf09dd3de2a7de6ab03ee81e041c1ef27bed0defe75c6e1b8da1c86ff8d4669c"
+    },
+    {
+      "path": "desktop/src-tauri/icons/icon.ico",
+      "bytes": 55651,
+      "sha256": "9a24026ecb28a6f3e4f9f4c8c3c3c4cdf457dab36a6156db5b3635fa233e19b5"
+    },
+    {
+      "path": "desktop/src-tauri/icons/icon.png",
+      "bytes": 92927,
+      "sha256": "bf207190419b625201c4bacf216a17f421c6bcd7b561cbb903fb2e2f06b91bfc"
+    },
+    {
+      "path": "desktop/src-tauri/src/automation.rs",
+      "bytes": 5507,
+      "sha256": "9e86060f6d483124138ff109a0280d107d64d2e7d6b917dc627b284976a2cb8d",
+      "lines": 118
+    },
+    {
+      "path": "desktop/src-tauri/src/config.rs",
+      "bytes": 19333,
+      "sha256": "0e75785d0251649e032c4d8667f6c41a5d09dce36d7cd058a580941450891ce9",
+      "lines": 489
+    },
+    {
+      "path": "desktop/src-tauri/src/demo.rs",
+      "bytes": 36801,
+      "sha256": "3fa0583cd37172eac2b34d5d7def36f770c2edcf687df7469ee0b7f78d7421f7",
+      "lines": 688
+    },
+    {
+      "path": "desktop/src-tauri/src/discover.sh",
+      "bytes": 1561,
+      "sha256": "6ad436870bfa6abb4b18fb18287ca7183d48f7fc861714866f5884f51e122b8f",
+      "lines": 25
+    },
+    {
+      "path": "desktop/src-tauri/src/docker-health.sh",
+      "bytes": 633,
+      "sha256": "b1b2a0ff9da4db9cec6f5fd18f5eb0cc73d20d6c7527622a49737fca72064c1d",
+      "lines": 5
+    },
+    {
+      "path": "desktop/src-tauri/src/fakeforge.rs",
+      "bytes": 33282,
+      "sha256": "62d9ce34cdf8092b1a9046b0f993878413f1b0e19ddde92910da19691618bfd1",
+      "lines": 580
+    },
+    {
+      "path": "desktop/src-tauri/src/forge.rs",
+      "bytes": 42193,
+      "sha256": "fcb9b9e5fc0733797d74ea3023baf9f70820f82e8b54f5260b8bec391e17d750",
+      "lines": 912
+    },
+    {
+      "path": "desktop/src-tauri/src/fstate.rs",
+      "bytes": 9580,
+      "sha256": "5940662c1b29654c1bbd79a65b30257e534b438077e6dcc45eab5584859dfc1d",
+      "lines": 252
+    },
+    {
+      "path": "desktop/src-tauri/src/health.rs",
+      "bytes": 35515,
+      "sha256": "94350cbd55ddae9de7926333d9894f59d5d93d4715475ff6bb05d765ab7533bf",
+      "lines": 850
+    },
+    {
+      "path": "desktop/src-tauri/src/host.rs",
+      "bytes": 67357,
+      "sha256": "e53e52bd3fd8004e25bd5ca196fc0b676ff4e7c816a15a81e5192a0df4c888e8",
+      "lines": 1243
+    },
+    {
+      "path": "desktop/src-tauri/src/hub.rs",
+      "bytes": 38745,
+      "sha256": "6016e47a23b701d20b2739daba295f06ad1dfa7bc3ad41fcabcae331d6b9ac54",
+      "lines": 842
+    },
+    {
+      "path": "desktop/src-tauri/src/install.rs",
+      "bytes": 13369,
+      "sha256": "43081ab6e8f053e610e7657ebe38e53fa5c0136066e9c89b1104541fb7e7feb2",
+      "lines": 284
+    },
+    {
+      "path": "desktop/src-tauri/src/lib.rs",
+      "bytes": 39667,
+      "sha256": "5b083893c77ec9ba5e1589738e8367bc9343c3bc7a8a6c62a0863ad7c9f1363d",
+      "lines": 929
+    },
+    {
+      "path": "desktop/src-tauri/src/main.rs",
+      "bytes": 170,
+      "sha256": "79f4ebc4694190df7290f4f527753fe5515d08b381cce8e19259521917758743",
+      "lines": 6
+    },
+    {
+      "path": "desktop/src-tauri/src/rcon.rs",
+      "bytes": 15583,
+      "sha256": "b1ed2ab7a7e0eba4939d3fdf03d0064e47d4a455ac0ec1655dc69c23e68558f6",
+      "lines": 371
+    },
+    {
+      "path": "desktop/src-tauri/src/stats.rs",
+      "bytes": 4761,
+      "sha256": "cd79b8e35d70fcbc0dc7fd5ecbd48066cd1245de6e0712c5ed264f9499563563",
+      "lines": 113
+    },
+    {
+      "path": "desktop/src-tauri/src/util.rs",
+      "bytes": 7963,
+      "sha256": "b0dd0796629dc84968469d67bb4c3c610ec53299fc14c3afe438c5256a37d10e",
+      "lines": 253
+    },
+    {
+      "path": "desktop/src-tauri/tauri.conf.json",
+      "bytes": 1159,
+      "sha256": "a698f60049491fbfab4c547679468c067baa9ccaa33732a0133571311100f6cb",
+      "lines": 39
+    },
+    {
+      "path": "desktop/src/App.tsx",
+      "bytes": 12757,
+      "sha256": "6af3c34de451a9f62394f0f23716e369bee97cf6f06dde7158c1c6cfc56e81fe",
+      "lines": 264
+    },
+    {
+      "path": "desktop/src/actions.ts",
+      "bytes": 46740,
+      "sha256": "1c595e75a015ab878d37182d87b8537d8e1e3e73d9f8bf075cd518a6715e0210",
+      "lines": 722
+    },
+    {
+      "path": "desktop/src/art/archive.ts",
+      "bytes": 19828,
+      "sha256": "dea5f7fcbbfff6e5a8f3fd27562f5fcbaf912a3e6ef7a857ff1df4ac9006b7d0",
+      "lines": 398
+    },
+    {
+      "path": "desktop/src/art/emblem.txt",
+      "bytes": 7534,
+      "sha256": "e869404f74d0f28e9af2923492387e01a87bc5267821b411f30bfb0127418dd1"
+    },
+    {
+      "path": "desktop/src/art/palette.ts",
+      "bytes": 1991,
+      "sha256": "3ca7ff3c6781107c8b8a1875cf557db71b1b40557098f46c5a398957bbb537bf",
+      "lines": 45
+    },
+    {
+      "path": "desktop/src/art/pixels.ts",
+      "bytes": 4032,
+      "sha256": "404774810587e9bd9a055e2985e2636ef05c60ea7d99cc77e8338ce71f106ef9",
+      "lines": 104
+    },
+    {
+      "path": "desktop/src/art/superintendent.mp3",
+      "bytes": 64084,
+      "sha256": "3ad13ca635184771275d0eb379768a6b8b0009dfc7ebea7993b922e3c399d5db"
+    },
+    {
+      "path": "desktop/src/art/superintendent.ts",
+      "bytes": 6175,
+      "sha256": "6e66fc15682414a26952043f83c4515a14695502f2a20842af540653d3d7e262",
+      "lines": 130
+    },
+    {
+      "path": "desktop/src/components/Assets.tsx",
+      "bytes": 8203,
+      "sha256": "4a9276892500492c30c2d5a44c170824df3d6f4fa7427d1fbc55f51488418e42",
+      "lines": 145
+    },
+    {
+      "path": "desktop/src/components/Automation.tsx",
+      "bytes": 4215,
+      "sha256": "c6c05a9e79bc74cc586021d49446be04307fae20f0e26c96514fd36d0acde080",
+      "lines": 64
+    },
+    {
+      "path": "desktop/src/components/Boot.tsx",
+      "bytes": 7362,
+      "sha256": "e9546350f33fc00e5cd3c340058ba40b40d8ab8ef268c39fec975676f9faf7e7",
+      "lines": 154
+    },
+    {
+      "path": "desktop/src/components/Chrome.tsx",
+      "bytes": 3269,
+      "sha256": "42b677bdae05761c70fad0ea47a1e19e1deee5e99e29945bb5296f63b39435eb",
+      "lines": 73
+    },
+    {
+      "path": "desktop/src/components/Content.tsx",
+      "bytes": 13568,
+      "sha256": "0d537026ff9b94f55b9219e5ca70f3d13ad0973f2e27b3c2ea54e2999562a6c5",
+      "lines": 196
+    },
+    {
+      "path": "desktop/src/components/Dialogs.tsx",
+      "bytes": 22182,
+      "sha256": "d3bfde57378bba773c4257724ac35fdf3820649cb8b0744365547a9a419c89cd",
+      "lines": 270
+    },
+    {
+      "path": "desktop/src/components/Feeds.tsx",
+      "bytes": 8228,
+      "sha256": "041efad14535b896cf6a83c4be10ca497b2ee13fa23c0d26ed703b3ad4cec275",
+      "lines": 165
+    },
+    {
+      "path": "desktop/src/components/Findings.tsx",
+      "bytes": 5813,
+      "sha256": "4fe205bc74c4299d5171a782e8d853b8aa62725092982fc40f0f2572ba3b0507",
+      "lines": 91
+    },
+    {
+      "path": "desktop/src/components/Forge.tsx",
+      "bytes": 27918,
+      "sha256": "100a1f4e0777aff1611e54119b7d1757f5b140546dfaa6586b065b1b0a8c9243",
+      "lines": 422
+    },
+    {
+      "path": "desktop/src/components/Health.tsx",
+      "bytes": 11451,
+      "sha256": "2f181fc3cf0ce39aa41f4d75053a8d2ed383da9f1788ec40e7a83e74972211dc",
+      "lines": 164
+    },
+    {
+      "path": "desktop/src/components/Ops.tsx",
+      "bytes": 12558,
+      "sha256": "bdddf4287cb3c96016614c4477e882b0e9a53fc14e7caefa186aca5555e3898e",
+      "lines": 193
+    },
+    {
+      "path": "desktop/src/components/Setup.tsx",
+      "bytes": 17562,
+      "sha256": "0d912512f838d2dacc14ac9a57b5fdcb573e260b0cf42cdf2b02645083702ca9",
+      "lines": 272
+    },
+    {
+      "path": "desktop/src/components/Sidebar.tsx",
+      "bytes": 8991,
+      "sha256": "efd2d88ce61b5f565d18dad92b1b9fe82d1bd416c41f42853111c052d194a72f",
+      "lines": 173
+    },
+    {
+      "path": "desktop/src/components/ui.tsx",
+      "bytes": 6622,
+      "sha256": "cf222bdbf215bf5751d79d0d5ce296af35467c6f0b33d49b0788151bfbe3e39e",
+      "lines": 137
+    },
+    {
+      "path": "desktop/src/engine.ts",
+      "bytes": 33267,
+      "sha256": "b6bcdb157b6e6e313ed476a4edde3e9d20d346bfbb8ec96a7c3703807d20dfa2",
+      "lines": 741
+    },
+    {
+      "path": "desktop/src/lib/content.ts",
+      "bytes": 14359,
+      "sha256": "083d8a32fb1a43de133e185eea526db990e4c8e6b2cd00084778fb4d7b28293c",
+      "lines": 237
+    },
+    {
+      "path": "desktop/src/lib/findings.ts",
+      "bytes": 22117,
+      "sha256": "29a9530a84d9ee08a48c731b7e05740283d9eb358811c9f4322c9258da4d8fa6",
+      "lines": 385
+    },
+    {
+      "path": "desktop/src/lib/forge.ts",
+      "bytes": 9666,
+      "sha256": "51d1e19e6130185d419a7a1b5350ee7d7de9dafd2b08009f04a057184b3e7240",
+      "lines": 180
+    },
+    {
+      "path": "desktop/src/lib/lib.test.ts",
+      "bytes": 23215,
+      "sha256": "9505f292670f9bcd68fc19b916ad6fa8735b57d6d8c34279688988873959d71c",
+      "lines": 397
+    },
+    {
+      "path": "desktop/src/lib/medals.ts",
+      "bytes": 1786,
+      "sha256": "548be467033af8a7d1c0f4eb27d751fbf8d725ea31b75b5ee52ad559725c254e",
+      "lines": 38
+    },
+    {
+      "path": "desktop/src/lib/perf.ts",
+      "bytes": 2318,
+      "sha256": "33ec2af804683488ef5b7d28d3b4447d909018c38ccc1d0bc46a296724de3427",
+      "lines": 31
+    },
+    {
+      "path": "desktop/src/lib/rules.test.ts",
+      "bytes": 6709,
+      "sha256": "166bf766d90fe9f521dc9ba16a0e843fb64ede7775b3efdccc7d91aabe5611db",
+      "lines": 124
+    },
+    {
+      "path": "desktop/src/lib/rules.ts",
+      "bytes": 51854,
+      "sha256": "2e407c8aa73e11b65dee4242aac8b26995eed3e42797d0d9378a509d9be4b0ec",
+      "lines": 782
+    },
+    {
+      "path": "desktop/src/lib/runner.test.ts",
+      "bytes": 2044,
+      "sha256": "783d35a50b6eca8d0e4668be5697b6eefdf16fdd32f3abf82c9b34e2e2e2f72a",
+      "lines": 43
+    },
+    {
+      "path": "desktop/src/lib/runner.ts",
+      "bytes": 5630,
+      "sha256": "8df57c06fd4da8bf1818309a48eebe8abb5aeacec2ddcd3ee49f5034d0294766",
+      "lines": 115
+    },
+    {
+      "path": "desktop/src/lib/search.ts",
+      "bytes": 4813,
+      "sha256": "78331191c0cdc95a75bdcf872bbf363ebee575b6418c4268fe40f4bdef08e86a",
+      "lines": 89
+    },
+    {
+      "path": "desktop/src/lib/util.ts",
+      "bytes": 18500,
+      "sha256": "eabbec6399914a17cdc9cb528d126a6891c47df0d35aa79d74adb3db4f96c84f",
+      "lines": 380
+    },
+    {
+      "path": "desktop/src/main.tsx",
+      "bytes": 1699,
+      "sha256": "5aceb78d0bfdca738f5674ab030ef591e8fabee12051d1bce66a97a3667d4908",
+      "lines": 40
+    },
+    {
+      "path": "desktop/src/theme.css",
+      "bytes": 13230,
+      "sha256": "a88107a940b22ff08ba36452c0e6a8cce7f7068980a1e693e11841d208e7b8ae",
+      "lines": 177
+    },
+    {
+      "path": "desktop/tsconfig.json",
+      "bytes": 538,
+      "sha256": "762ba177208ccaea6405c038ace49a138d54644ec85db1fa6d2858cff1d49b32",
+      "lines": 21
+    },
+    {
+      "path": "desktop/vite.config.ts",
+      "bytes": 428,
+      "sha256": "376d4d7a1003bdc56f91aa54b97b8620f6a678e68e2f92bb192a4efa854b2396",
+      "lines": 11
+    },
+    {
+      "path": "docs/AUTOMATION.md",
+      "bytes": 3780,
+      "sha256": "0e3b8f7630051a6d127ecd942e1cc1926bc52d2a8c1efe7e510a0cffd2ccf076",
+      "lines": 63
+    },
+    {
+      "path": "docs/SERVER-PERFORMANCE.md",
+      "bytes": 3922,
+      "sha256": "e6954e80b007afba755c83e63f3adf398772dd215fcec540393ad5586d4db873",
+      "lines": 70
+    },
+    {
+      "path": "docs/assets.png",
+      "bytes": 219445,
+      "sha256": "ba923aab0a7dd4b48511dbfbfff5d7f6aff780e52411bab2d2714fc4f8eab8b7"
+    },
+    {
+      "path": "docs/boot.png",
+      "bytes": 57872,
+      "sha256": "81b3f4c5d31a61d72e547a24de4092833021203e586b202fdcc35eb995053b43"
+    },
+    {
+      "path": "docs/health.png",
+      "bytes": 194046,
+      "sha256": "8d09ededb536f43cd29f52d11824281bdd339632a3b965cf1eee761ecc3a0ee6"
+    },
+    {
+      "path": "docs/hosting-demo.mp4",
+      "missing_from_worktree": true
+    },
+    {
+      "path": "docs/hosting.md",
+      "bytes": 8350,
+      "sha256": "25c94e457dbd5475911fdd8b715510b2bfe5a042028a2843af4db5595dbeadc2",
+      "lines": 130
+    },
+    {
+      "path": "docs/intercepts.png",
+      "bytes": 386902,
+      "sha256": "8351c2a875516fed55c5181edaac399c645cdb6691894f0dc73144deffdbec51"
+    },
+    {
+      "path": "docs/operations.png",
+      "bytes": 216358,
+      "sha256": "16c2852a43490a7732f09bcf13a8879a4027f68b084c3183e71bca55cf67345e"
+    },
+    {
+      "path": "docs/setup.png",
+      "bytes": 119452,
+      "sha256": "290340bbc7383789d2fc2b469395dd5a4af809f579df5a6019746d28c25297b0"
+    },
+    {
+      "path": "oni-rcon.example.toml",
+      "bytes": 5294,
+      "sha256": "4e4121a449cc59ec798f54f92e6b8dba11332e1a87109c5b3b50745d61f68c2c",
+      "lines": 73
+    },
+    {
+      "path": "packaging/oni-rcon.ico",
+      "bytes": 85473,
+      "sha256": "8d995ad320cc49ff09b6d18c95821178e6b30b780b56580dee31f8ae7e8f5ce9"
+    },
+    {
+      "path": "pyproject.toml",
+      "bytes": 779,
+      "sha256": "52cebf480556757776128281175e74cef61f1f6a20e8c835c9a73a23955bbdcd",
+      "lines": 25
+    },
+    {
+      "path": "src/oni_rcon/__init__.py",
+      "bytes": 113,
+      "sha256": "7c12f0fa1e1ba948a7ff5ffa20f7a04896abfb7db6b4f46155ea7396bc605733",
+      "lines": 2,
+      "symbols": [],
+      "imports": []
+    },
+    {
+      "path": "src/oni_rcon/__main__.py",
+      "bytes": 6444,
+      "sha256": "7d40f5f57ed3bb16245a4eea6e201f96beb00cb98669896adecee31152798455",
+      "lines": 124,
+      "symbols": [
+        "main",
+        "forge_setup",
+        "health_setup",
+        "login"
+      ],
+      "imports": [
+        "",
+        "__future__",
+        "app",
+        "argparse",
+        "config",
+        "demo",
+        "forge",
+        "forgefake",
+        "getpass",
+        "health",
+        "pathlib",
+        "prefs",
+        "sys",
+        "tempfile",
+        "wizard"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/app.py",
+      "bytes": 197859,
+      "sha256": "5a351ddb990e99912d390af6a629184f61f38327ccacde12886047472971635b",
+      "lines": 3491,
+      "symbols": [
+        "explain",
+        "pick",
+        "num",
+        "team_of",
+        "target_of",
+        "who",
+        "id_forms",
+        "player_ids",
+        "resolve",
+        "tally",
+        "sides",
+        "bar",
+        "ping_cell",
+        "team_strip",
+        "until",
+        "clock",
+        "when",
+        "age",
+        "redact_addr",
+        "redact_text",
+        "redact_data",
+        "clip_id",
+        "q",
+        "parse_command",
+        "split_tag",
+        "describe",
+        "reaction_words",
+        "render_event",
+        "vote_text",
+        "Station",
+        "Dialog",
+        "Confirm",
+        "Form",
+        "Pick",
+        "Help",
+        "Archive",
+        "Boot",
+        "Assets",
+        "Blacklist",
+        "ForgePane",
+        "rating_text",
+        "fit_text",
+        "compat_words",
+        "day",
+        "same",
+        "Card",
+        "Stations",
+        "Roster",
+        "Feed",
+        "CommandInput",
+        "OniApp"
+      ],
+      "imports": [
+        "",
+        "__future__",
+        "archive",
+        "art",
+        "asyncio",
+        "collections",
+        "config",
+        "contextlib",
+        "dataclasses",
+        "datetime",
+        "forge",
+        "health",
+        "install",
+        "json",
+        "medals",
+        "os.path",
+        "prefs",
+        "rcon",
+        "re",
+        "rich.console",
+        "rich.json",
+        "rich.measure",
+        "rich.table",
+        "rich.text",
+        "shlex",
+        "shutil",
+        "state",
+        "stats",
+        "superintendent",
+        "textual",
+        "textual.app",
+        "textual.binding",
+        "textual.color",
+        "textual.containers",
+        "textual.coordinate",
+        "textual.markup",
+        "textual.screen",
+        "textual.suggester",
+        "textual.theme",
+        "textual.widgets",
+        "textual.widgets.option_list",
+        "textual.worker",
+        "threading",
+        "time",
+        "typing"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/archive.py",
+      "bytes": 17628,
+      "sha256": "d87ca37da9a5a41186ad794434c3bbd2511ed8948e03d02c2cb7696d9cbf7841",
+      "lines": 368,
+      "symbols": [
+        "cl",
+        "ease_out_cubic",
+        "ease_in_out_sine",
+        "ease_out_back",
+        "materialise",
+        "gungnir",
+        "vnoise",
+        "ring",
+        "spark",
+        "face_tones",
+        "face_class",
+        "superintendent",
+        "superintendent_at",
+        "super_mood",
+        "super_expr",
+        "Frame",
+        "spaced",
+        "locate",
+        "frame"
+      ],
+      "imports": [
+        "__future__",
+        "art",
+        "dataclasses",
+        "math",
+        "superintendent"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/art.py",
+      "bytes": 8125,
+      "sha256": "4f29f76f1ca9e527c8ea652d30110efa7319b3f652c84e1e2d9be53368a46c36",
+      "lines": 176,
+      "symbols": [
+        "noise",
+        "blend",
+        "halfblocks",
+        "pixels",
+        "fit",
+        "emblem",
+        "biosig",
+        "gauge",
+        "hbar",
+        "split_bar",
+        "spark",
+        "decrypt"
+      ],
+      "imports": [
+        "__future__",
+        "hashlib",
+        "math",
+        "pathlib",
+        "re",
+        "rich.text"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/config.py",
+      "bytes": 9773,
+      "sha256": "7ab707978bafc45e4379e32ad43f03096d2b31c57b575884a39053cd47530aba",
+      "lines": 215,
+      "symbols": [
+        "Server",
+        "parse_target",
+        "user_config",
+        "default_config",
+        "load_config",
+        "resolve_passwords",
+        "CommandFailed",
+        "run_command",
+        "_run",
+        "forge_settings",
+        "health_settings",
+        "write_atomic",
+        "remember_forge_key",
+        "toml_str",
+        "add_servers"
+      ],
+      "imports": [
+        "__future__",
+        "contextlib",
+        "dataclasses",
+        "getpass",
+        "os",
+        "pathlib",
+        "re",
+        "subprocess",
+        "tomllib"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/demo.py",
+      "bytes": 22430,
+      "sha256": "1d6f14aaeb697a5e5f00f8cd9c72550ccf37726a56c67f3072507d9370bea344",
+      "lines": 375,
+      "symbols": [
+        "Fake",
+        "iso",
+        "FakeHost",
+        "serve_fakes",
+        "start_in_thread"
+      ],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "json",
+        "pathlib",
+        "random",
+        "threading",
+        "time",
+        "websockets.asyncio.server",
+        "websockets.exceptions"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/emblem.txt",
+      "bytes": 7534,
+      "sha256": "e869404f74d0f28e9af2923492387e01a87bc5267821b411f30bfb0127418dd1"
+    },
+    {
+      "path": "src/oni_rcon/forge.py",
+      "bytes": 41152,
+      "sha256": "391d1280b603427567277d06ead744787e62271c1e5bae358281300100c98d97",
+      "lines": 841,
+      "symbols": [
+        "Secret",
+        "scrub",
+        "scrub_data",
+        "KeyFound",
+        "load_key",
+        "ForgeSetup",
+        "ForgeError",
+        "Unverified",
+        "detail_of",
+        "retry_after",
+        "loopback",
+        "secure",
+        "origin",
+        "Quota",
+        "pick",
+        "num",
+        "items_of",
+        "next_page",
+        "tidy",
+        "shorten",
+        "id_list",
+        "listing_id",
+        "version_id",
+        "version_label",
+        "notes_of",
+        "blurb_of",
+        "title_of",
+        "kind_of",
+        "authors_of",
+        "owner_of",
+        "author_of",
+        "is_withdrawn",
+        "usable",
+        "versions_of",
+        "when_of",
+        "newest",
+        "latest_of",
+        "votes_of",
+        "metrics_of",
+        "recent_of",
+        "views_of",
+        "history_since",
+        "compat_of",
+        "version_tuple",
+        "compatible",
+        "utc_iso",
+        "parse_iso",
+        "before",
+        "change_listing",
+        "change_key",
+        "active_now",
+        "favourite_listings",
+        "sha_hex",
+        "file_sha",
+        "cache_root",
+        "Cache",
+        "ForgeClient"
+      ],
+      "imports": [
+        "",
+        "__future__",
+        "asyncio",
+        "config",
+        "contextlib",
+        "dataclasses",
+        "datetime",
+        "email.utils",
+        "hashlib",
+        "http.client",
+        "ipaddress",
+        "json",
+        "os",
+        "pathlib",
+        "random",
+        "re",
+        "threading",
+        "time",
+        "urllib.error",
+        "urllib.parse",
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/forgefake.py",
+      "bytes": 19680,
+      "sha256": "0991a6282db6baf835f48cc32a06095a2af6d0602ea3b3df9edbb1522e6c1eb6",
+      "lines": 333,
+      "symbols": [
+        "slug",
+        "FakeForge",
+        "_Handler",
+        "serve",
+        "start_demo"
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "datetime",
+        "forge",
+        "hashlib",
+        "http.server",
+        "json",
+        "math",
+        "random",
+        "re",
+        "threading",
+        "time",
+        "urllib.parse"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/health.py",
+      "bytes": 21844,
+      "sha256": "a4092142db9f5eeeae8df70e22dbf88b1db2a24e549d35536788a85752cfa6ec",
+      "lines": 478,
+      "symbols": [
+        "hexed",
+        "scrub",
+        "parse_ts",
+        "split_stamp",
+        "_num",
+        "_flag",
+        "Box",
+        "Report",
+        "record",
+        "parse_report",
+        "clock_for",
+        "Crash",
+        "crashes_in",
+        "mem_level",
+        "swap_level",
+        "Notice",
+        "Host",
+        "Service",
+        "Monitor",
+        "service_command",
+        "parse_service",
+        "HealthSetup",
+        "HealthError",
+        "run"
+      ],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "collections",
+        "dataclasses",
+        "datetime",
+        "install",
+        "json",
+        "re",
+        "shlex",
+        "shutil",
+        "time",
+        "typing"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/install.py",
+      "bytes": 9120,
+      "sha256": "1f07ca232d00090e90ed715874c0dd12b9e532a7d2f0b925ccde28304513cc6d",
+      "lines": 186,
+      "symbols": [
+        "InstallError",
+        "File",
+        "safe_path",
+        "plan",
+        "size_words",
+        "LocalTarget",
+        "rpath",
+        "SshTarget",
+        "target_for",
+        "place"
+      ],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "config",
+        "dataclasses",
+        "forge",
+        "os",
+        "pathlib",
+        "posixpath",
+        "re",
+        "shlex",
+        "shutil"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/medals.py",
+      "bytes": 1919,
+      "sha256": "7315ddec82bf911763719116bdadb4acb35342bc4f1e36c6152b581de8c282a1",
+      "lines": 41,
+      "symbols": [
+        "Medals"
+      ],
+      "imports": [
+        "__future__",
+        "collections"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/oni.tcss",
+      "bytes": 8687,
+      "sha256": "97184467972d71666bba62a2d15c6f435f58f10adf5e47837cf7930e9dddbef9",
+      "lines": 175
+    },
+    {
+      "path": "src/oni_rcon/prefs.py",
+      "bytes": 1606,
+      "sha256": "28164a9fc64d4fc4c6243ff273bbcf9ba1ec7d78e46cf98bc7812d38ae78f4fa",
+      "lines": 37,
+      "symbols": [
+        "Prefs"
+      ],
+      "imports": [
+        "__future__",
+        "config",
+        "dataclasses",
+        "json",
+        "pathlib"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/rcon.py",
+      "bytes": 8740,
+      "sha256": "4c97b4ec51ca455ea811432139d67560ff88ce540efdf4c4d051f5e96f28309f",
+      "lines": 180,
+      "symbols": [
+        "Rcon",
+        "free_port",
+        "Tunnel"
+      ],
+      "imports": [
+        "__future__",
+        "asyncio",
+        "contextlib",
+        "itertools",
+        "json",
+        "random",
+        "shutil",
+        "socket",
+        "typing",
+        "websockets.asyncio.client",
+        "websockets.exceptions"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/state.py",
+      "bytes": 8534,
+      "sha256": "be2cf98027972d785912cfbcd222326df122a868d473573cea466c024ca95a95",
+      "lines": 165,
+      "symbols": [
+        "norm",
+        "refs_of",
+        "ForgeState"
+      ],
+      "imports": [
+        "__future__",
+        "config",
+        "contextlib",
+        "forge",
+        "json",
+        "pathlib",
+        "re"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/stats.py",
+      "bytes": 4101,
+      "sha256": "be8b81b056d026247c93ee7c41107b5a6e2c32a95693530738c73ec8edf9e190",
+      "lines": 74,
+      "symbols": [
+        "Rounds"
+      ],
+      "imports": [
+        "",
+        "__future__",
+        "contextlib",
+        "forge",
+        "json",
+        "pathlib",
+        "state",
+        "time",
+        "typing",
+        "uuid"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/superintendent.py",
+      "bytes": 11163,
+      "sha256": "8af5f669fc99e62683826c68d4dd9112619c98dd8c44981f2d479bed74c6aff7",
+      "lines": 215,
+      "symbols": [
+        "Expr",
+        "Reaction",
+        "classify",
+        "ease_out",
+        "ease_pop",
+        "face",
+        "_face",
+        "Superintendent",
+        "below",
+        "said",
+        "card"
+      ],
+      "imports": [
+        "__future__",
+        "archive",
+        "art",
+        "dataclasses",
+        "functools",
+        "math",
+        "re",
+        "rich.text",
+        "textwrap",
+        "time"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/update.py",
+      "bytes": 2759,
+      "sha256": "937f17d1674848bb8bbe9bcaf667be1d7915509a115e6b3d12ccd94c956c167a",
+      "lines": 66,
+      "symbols": [
+        "fetch",
+        "newer",
+        "check"
+      ],
+      "imports": [
+        "",
+        "__future__",
+        "contextlib",
+        "hashlib",
+        "json",
+        "os",
+        "pathlib",
+        "sys",
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "src/oni_rcon/wizard.py",
+      "bytes": 12199,
+      "sha256": "0f08d7672911aa6946f8ec93fec1931b1f9e55954cd9238585e6011316284982",
+      "lines": 255,
+      "symbols": [
+        "target",
+        "probe",
+        "SetupApp",
+        "setup"
+      ],
+      "imports": [
+        "__future__",
+        "app",
+        "asyncio",
+        "config",
+        "contextlib",
+        "itertools",
+        "pathlib",
+        "rcon",
+        "rich.text",
+        "textual",
+        "textual.app",
+        "textual.binding",
+        "textual.containers",
+        "textual.widgets"
+      ]
+    },
+    {
+      "path": "tests/test_archive.py",
+      "bytes": 8760,
+      "sha256": "0dfafd904611c37c793feeb563ec860140f5d0cb417ad5f7c4ba5cc4687bdf79",
+      "lines": 193,
+      "symbols": [
+        "plain",
+        "test_the_scenes_play_in_the_designs_order_and_length",
+        "test_each_file_decrypts_in_turn_and_the_gauge_follows",
+        "test_titles_decrypt_and_say_what_the_design_says",
+        "test_the_pictures_are_the_designs_size",
+        "test_a_picture_materialises_from_nothing_and_dissolves_out",
+        "test_the_glint_and_the_spin_move",
+        "test_pixels_and_fit",
+        "test_the_first_run_is_full_then_quick_unless_asked",
+        "test_unreadable_prefs_read_as_defaults",
+        "full_app",
+        "test_full_plays_the_archive_then_the_clearance_check",
+        "test_a_key_skips_the_whole_sequence",
+        "test_it_fits_a_small_terminal",
+        "test_quick_and_off_skip_the_archive",
+        "test_no_animations_means_no_archive",
+        "test_the_palette_toggle_is_remembered"
+      ],
+      "imports": [
+        "asyncio",
+        "json",
+        "oni_rcon",
+        "oni_rcon.app",
+        "oni_rcon.art",
+        "oni_rcon.config",
+        "oni_rcon.demo",
+        "oni_rcon.prefs",
+        "pytest"
+      ]
+    },
+    {
+      "path": "tests/test_forge.py",
+      "bytes": 53139,
+      "sha256": "931209ac5c605c701c28612768dacdbb0fadadf5cb3696bb9eda2e2850caed34",
+      "lines": 929,
+      "symbols": [
+        "fake",
+        "client",
+        "test_a_key_never_prints",
+        "test_where_the_key_comes_from",
+        "test_the_key_is_saved_only_when_asked",
+        "test_the_catalog",
+        "test_every_error_in_words",
+        "test_a_refused_key_and_a_missing_scope",
+        "test_rate_limits_are_honoured",
+        "test_an_old_copy_when_forge_is_down",
+        "test_the_key_stays_on_forge",
+        "test_downloads_are_checked",
+        "test_the_changes_feed_pages_from_as_of",
+        "test_reading_listings_tolerantly",
+        "days_ago",
+        "test_reading_the_documented_listing",
+        "test_versions_by_their_documented_fields",
+        "test_text_from_strangers_is_safe_on_a_terminal",
+        "test_favourites_feed",
+        "test_a_favourites_collection_is_on_from_its_start_until_its_end",
+        "test_changes_are_told_apart_by_ids",
+        "test_compatibility",
+        "until",
+        "plain",
+        "forge_app",
+        "test_the_forge_tab",
+        "test_the_favourites_view",
+        "test_a_withdrawn_version_flags_only_the_install_it_was",
+        "test_the_older_change_spelling_still_reads",
+        "test_late_forge_events_while_quitting_are_ignored",
+        "test_late_row_station_and_tab_events_while_quitting_are_ignored",
+        "test_the_forge_tab_without_a_key",
+        "test_only_safe_files_are_written",
+        "test_the_state_file",
+        "test_a_withdrawn_version_in_the_state_file",
+        "install_files",
+        "test_install_on_this_machine",
+        "test_install_over_ssh",
+        "test_install_and_load_from_f6",
+        "test_updates_and_withdrawals",
+        "test_now_playing_credit",
+        "test_rounds_are_counted_locally"
+      ],
+      "imports": [
+        "asyncio",
+        "hashlib",
+        "io",
+        "json",
+        "oni_rcon",
+        "oni_rcon.app",
+        "oni_rcon.config",
+        "oni_rcon.demo",
+        "oni_rcon.forge",
+        "oni_rcon.forgefake",
+        "oni_rcon.install",
+        "oni_rcon.state",
+        "oni_rcon.stats",
+        "pytest",
+        "rich.console",
+        "sys",
+        "types"
+      ]
+    },
+    {
+      "path": "tests/test_health.py",
+      "bytes": 28766,
+      "sha256": "4741f1df51ca7fc58933cd6a258dc721716a4e8808bfc34c13efdeb637cb1387",
+      "lines": 522,
+      "symbols": [
+        "at",
+        "host",
+        "box",
+        "test_the_three_log_shapes_are_told_apart",
+        "test_repeats_are_one_crash",
+        "test_ids_and_addresses_never_survive",
+        "test_threshold_colours",
+        "test_low_memory_alerts_once_and_rearms",
+        "test_only_a_new_crash_is_news",
+        "test_oom_kills_and_restarts",
+        "test_the_hosts_counter_and_the_containers_flag_are_one_kill",
+        "test_player_count_comes_from_before_the_drop",
+        "test_reports_in_either_shape",
+        "test_service_report",
+        "test_config_keys",
+        "test_the_documented_example_is_valid_toml",
+        "test_the_examples_host_line_parses",
+        "test_run_reads_a_local_command",
+        "plain",
+        "grid_text",
+        "table_text",
+        "test_unconfigured_the_tab_says_how_to_turn_it_on",
+        "test_a_service_alone_shows_its_panel",
+        "ready",
+        "test_demo_crashes_and_a_squeeze_reach_the_tab_the_feed_and_a_banner",
+        "test_the_banner_flashes_on_any_tab_and_a_click_clears_it",
+        "test_the_health_tab_fits_a_small_terminal",
+        "test_a_report_that_fails_is_said_once_and_the_console_carries_on",
+        "station",
+        "test_id_spellings",
+        "test_kills_read_by_any_id_the_roster_carries",
+        "test_the_feed_names_players_when_kills_use_another_id"
+      ],
+      "imports": [
+        "asyncio",
+        "io",
+        "json",
+        "oni_rcon",
+        "oni_rcon.app",
+        "oni_rcon.config",
+        "oni_rcon.demo",
+        "oni_rcon.health",
+        "pathlib",
+        "pytest",
+        "re",
+        "rich.console",
+        "rich.text",
+        "subprocess",
+        "sys",
+        "tomllib"
+      ]
+    },
+    {
+      "path": "tests/test_oni_rcon.py",
+      "bytes": 30791,
+      "sha256": "286e691a15e535acf9f5096ac095706c4f093dae4fdbf58cd02da7ab8ec0996c",
+      "lines": 642,
+      "symbols": [
+        "test_targets",
+        "test_config",
+        "test_add_servers",
+        "test_explain",
+        "test_emblem_fits",
+        "test_event_lines",
+        "test_rcon_against_fake",
+        "test_app_against_fakes",
+        "test_setup_screen",
+        "test_setup_emblem_moves_aside_when_short",
+        "test_self_update",
+        "test_medals",
+        "test_art",
+        "test_redaction",
+        "test_sides",
+        "test_engine_ids_read_when_they_arrive",
+        "test_rcon_waits_for_its_tunnel",
+        "settle",
+        "until",
+        "plain",
+        "test_app_keeps_the_selection_and_redacts",
+        "test_join_ping_comes_from_the_log",
+        "test_markup_in_a_name_is_just_a_name",
+        "test_boot_waits_for_the_tunnel",
+        "test_reconnect_takes_the_password_again",
+        "test_operations_tab_survives_a_narrow_terminal",
+        "test_feed_holds_still_and_keeps_its_width",
+        "test_console_lines",
+        "test_community_tags",
+        "fleet",
+        "test_a_fleet",
+        "test_a_big_fleet_only_draws_the_cards_in_view",
+        "test_a_late_reply_is_reported"
+      ],
+      "imports": [
+        "asyncio",
+        "hashlib",
+        "json",
+        "oni_rcon",
+        "oni_rcon.app",
+        "oni_rcon.art",
+        "oni_rcon.config",
+        "oni_rcon.demo",
+        "oni_rcon.medals",
+        "oni_rcon.rcon",
+        "oni_rcon.wizard",
+        "pytest",
+        "rich.text",
+        "sys",
+        "textual.widgets"
+      ]
+    },
+    {
+      "path": "tests/test_superintendent.py",
+      "bytes": 17354,
+      "sha256": "1da7eb8985a06ed05abe43050e1fcfbd0b96ee00c536f053560eb7dee9543e79",
+      "lines": 337,
+      "symbols": [
+        "clock",
+        "colours",
+        "test_what_earns_a_reaction",
+        "test_the_face_is_drawn_the_way_the_design_draws_it",
+        "test_the_face_is_the_designs_at_48_and_crisp_below",
+        "test_small_eyes_stay_apart_and_a_smile_stays_a_smile",
+        "test_a_reaction_eases_in_holds_and_relaxes",
+        "test_an_alert_pulses_the_rim_red",
+        "test_weight_and_debounce",
+        "test_blinks_come_and_go_and_stop_with_animations_off",
+        "test_a_blink_closes_both_eyes_and_a_wink_one",
+        "test_the_card_fits_its_room",
+        "test_a_large_face_puts_its_words_underneath",
+        "test_quiet_says_so",
+        "until",
+        "plain",
+        "console_app",
+        "check_there",
+        "test_the_superintendent_is_always_there",
+        "test_it_stays_even_in_a_fleet",
+        "test_it_reacts_to_what_the_servers_send",
+        "test_what_it_says_obeys_redaction_and_strangers",
+        "test_turning_redaction_on_clears_what_it_last_said",
+        "test_animations_off_means_no_blinking_in_the_console"
+      ],
+      "imports": [
+        "asyncio",
+        "io",
+        "oni_rcon",
+        "oni_rcon.app",
+        "oni_rcon.config",
+        "oni_rcon.demo",
+        "oni_rcon.superintendent",
+        "pytest",
+        "rich.console"
+      ]
+    },
+    {
+      "path": "uv.lock",
+      "bytes": 59598,
+      "sha256": "104a878347ee424cc6dea5af263b2c1a7f2966066341bb1813d2faa049c06c73"
+    }
+  ]
+}
