@@ -5,6 +5,7 @@ import { AMBER, CYAN, DIM, TEAM_COLOR, WHITE } from "../art/palette";
 import { emblem } from "../art/archive";
 import { oni, useV, type Dialog } from "../engine";
 import { CREDIT } from "../lib/forge";
+import * as fuzzy from "../lib/fuzzy";
 import { everyone, rankedPlayers, type Found } from "../lib/search";
 import { plain, redactAddr, targetOf, type Dict, type Line } from "../lib/util";
 import { AutomationHub } from "./Automation";
@@ -89,8 +90,7 @@ function Pick({ d }: { d: Dialog }) {
   const list = useRef<HTMLDivElement>(null);
   const filter = useRef<HTMLInputElement>(null);
   const shown = useMemo(() => {
-    const t = text.toLowerCase();
-    return options.filter(([l, v]) => (typeof l === "string" ? l : plain(l)).toLowerCase().includes(t) || v.toLowerCase().includes(t));
+    return fuzzy.rank(text, options, ([l, v]) => [typeof l === "string" ? l : plain(l), v]);
   }, [options, text]);
   useEffect(() => (options.length > 8 ? filter.current : list.current)?.focus(), [options.length]);
   useEffect(() => setCur(0), [text]);

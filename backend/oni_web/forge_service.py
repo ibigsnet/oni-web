@@ -46,8 +46,8 @@ async def dispatch(h, name, a):
     try:
         c = client(h)
         if name == "forge_listings":
-            items, more, reply = await c.listings(a.get("sort", "trending"), a.get("window", "7d"), a.get("q", ""),
-                                                 more=a.get("more"), fresh=a.get("fresh", False))
+            items, more, reply = await search(c, a.get("sort", "trending"), a.get("window", "7d"), a.get("q", ""),
+                                              more=a.get("more"), fresh=a.get("fresh", False))
             return {"items": items, "next": more, "stale": reply.get("_stale"), "status": forge_status(h)}
         if name == "forge_favourites":
             cols, reply = await c.favourites(a.get("fresh", False))
@@ -95,6 +95,31 @@ async def dispatch(h, name, a):
         return error(e)
     except (install.InstallError, f.Unverified) as e:
         return {"error": {"short": "NOT INSTALLED", "text": str(e)}}
+
+
+async def search(c, sort, window, query, more=None, fresh=False, sweep_pages=10):
+    """IBIGS 2026-10-16: Forge's own search, then (when it finds fewer than 10) a sweep of the catalog ranked by
+    closeness, so a typo like "gluch" still finds "Gulch". Exact hits from Forge stay first."""
+    from oni_rcon import fuzzy
+    items, nxt, reply = await c.listings(sort, window, query, more=more, fresh=fresh)
+    if more or not str(query).strip() or len(items) >= 10:
+        return items, nxt, reply
+    pool, cursor = [], None
+    for _ in range(sweep_pages):
+        try:
+            page = await c.get("/api/listings", {"page_size": 50, "sort": sort,
+                                                 "window": window if sort in f.WINDOWED else None, **(cursor or {})},
+                               max_age=0 if fresh else 300)
+        except f.ForgeError:
+            break
+        pool += f.items_of(page)
+        cursor = f.next_page(page)
+        if not cursor:
+            break
+    have = {f.listing_id(x) for x in items}
+    extra = fuzzy.rank(query, [x for x in pool if f.listing_id(x) not in have],
+                       lambda x: (f.title_of(x), f.author_of(x), f.kind_of(x), " ".join(map(str, x.get("tags") or []))))
+    return items + extra, nxt, reply
 
 
 def inner(v):

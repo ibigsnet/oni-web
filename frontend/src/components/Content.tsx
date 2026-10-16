@@ -6,6 +6,7 @@ import { AMBER, DIM, GREEN, RED, WHITE } from "../art/palette";
 import { oni, type Dialog } from "../engine";
 import { GROUP_HELP, SORTS, arrange, catalogItems, checkPlaylist, gameLabel, itemsFor, type Game, type Group, type Item, type Playlist } from "../lib/content";
 import { norm } from "../lib/forge";
+import * as fuzzy from "../lib/fuzzy";
 import { type Dict, type Line } from "../lib/util";
 import { L, Table, type Row } from "./ui";
 
@@ -112,8 +113,7 @@ export function PlaylistLibrary({ d }: { d: Dialog }) {
   }, []);
   const forge = Object.values<Dict>(oni.forgeState.servers?.[st.where] ?? {}).filter((e) => e.kind === "playlist" && e.files?.[0]?.path)
     .map((e) => ({ path: `content/${e.files[0].path}`, name: e.title, forge: true }) as Dict);
-  const ws = text.toLowerCase().split(/\s+/).filter(Boolean);
-  const shown = [...(files ?? []), ...forge].filter((r) => ws.every((w) => `${r.name ?? ""} ${r.path}`.toLowerCase().includes(w)));
+  const shown = [...(files ?? []), ...forge].filter((r) => fuzzy.matches(text, r.name ?? "", r.path));
   const rows: Row[] = shown.map((r) => ({
     id: r.path,
     cells: [[[String(r.name ?? r.path.split("/").pop()), r.problem ? RED : WHITE]], [[r.problem ? "unreadable" : String(r.games ?? "—"), r.problem ? RED : DIM]],

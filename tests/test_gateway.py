@@ -393,3 +393,45 @@ def test_server_upload_off_without_folder(tmp_path, monkeypatch):
         async with gateway(tmp_path) as (app, base):
             assert (await http(base, "/api/server-upload"))[0] == 404
     run(scenario())
+
+
+def test_forge_preview_rejects_bad_ids(tmp_path):
+    async def scenario():
+        async with gateway(tmp_path) as (app, base):
+            assert (await http(base, "/api/forge/image/not-a-uuid/thumb"))[0] == 404
+            assert (await http(base, "/api/forge/image/050fd1ca-e13b-41c5-8a34-d245d2517ed2/..%2Fx"))[0] == 404
+    run(scenario())
+
+
+def test_forge_preview_shrinks_and_caches(tmp_path, monkeypatch):
+    from io import BytesIO
+    from PIL import Image
+    import oni_rcon.forge as forge
+    import urllib.request
+    big = BytesIO()
+    Image.new("RGB", (2560, 1440), (200, 100, 50)).save(big, "PNG")
+    calls = []
+
+    class Reply(BytesIO):
+        headers = {"content-type": "image/png"}
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
+    def fake_open(req, timeout=0):
+        calls.append(req.full_url)
+        return Reply(big.getvalue())
+    monkeypatch.setattr(urllib.request, "urlopen", fake_open)
+    lid, img = "050fd1ca-e13b-41c5-8a34-d245d2517ed2", "919dab2e-7201-465a-b352-a7ce3f5d48dc"
+
+    async def scenario():
+        async with gateway(tmp_path) as (app, base):
+            for _ in range(2):
+                def go():
+                    with urlopen(Request(f"{base}/api/forge/image/{lid}/{img}"), timeout=15) as r:
+                        return r.status, r.headers.get("content-type"), r.headers.get("cache-control"), r.read()
+                status, ctype, cache, body = await asyncio.to_thread(go)
+                assert status == 200 and ctype == "image/jpeg" and "max-age" in cache
+                with Image.open(BytesIO(body)) as im:
+                    assert im.size == (480, 270)
+            assert calls == [forge.FORGE_URL + f"/api/listings/{lid}/images/{img}"]   # second one from disk
+    run(scenario())

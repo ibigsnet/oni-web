@@ -2,6 +2,7 @@
 // listing picked with its versions, and installing, loading and acknowledging. With the write scopes it publishes too:
 // p puts new files up, and MINE lists the operator's own listings to update, edit, withdraw or delete.
 import { invoke } from "@web/bridge";
+import * as fuzzy from "../lib/fuzzy";
 import { useEffect, useState } from "react";
 import { AMBER, CYAN, DIM, GOLD, GREEN, RED, WHITE } from "../art/palette";
 import { bump, oni, useV } from "../engine";
@@ -291,6 +292,25 @@ function NoKey() {
   );
 }
 
+// IBIGS 2026-10-16: small previews of the listing's screenshots (shrunk by this console; up to four).
+function Previews({ x, lid }: { x: Dict; lid: string }) {
+  const [gone, setGone] = useState<Set<string>>(new Set());
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+  if (!uuid.test(lid)) return null;
+  const imgs = (Array.isArray(x.images) ? x.images : []).filter((i: Dict) => uuid.test(String(i?.id ?? "")))
+    .sort((a: Dict, b: Dict) => (Number(a.position) || 0) - (Number(b.position) || 0)).slice(0, 4)
+    .map((i: Dict) => ({ key: String(i.id), src: `/api/forge/image/${lid}/${i.id}`, name: String(i.original_filename ?? "") }));
+  if (!imgs.length && x.thumbnail_url) {
+    const v = /[?&]v=(\d{1,24})/.exec(String(x.thumbnail_url))?.[1] ?? "";
+    imgs.push({ key: "thumb", src: `/api/forge/image/${lid}/thumb${v ? `?v=${v}` : ""}`, name: "" });
+  }
+  const shown = imgs.filter((i: Dict) => !gone.has(i.key));
+  if (!shown.length) return null;
+  return <div className="forge-previews">{shown.map((i: Dict) =>
+    <img key={i.key} src={i.src} alt={i.name || titleOf(x)} title={i.name} loading="lazy"
+      onError={() => setGone((g) => new Set(g).add(i.key))} />)}</div>;
+}
+
 function ListingFile({ x }: { x: Dict }) {
   const st = oni.cur, lid = listingId(x);
   if (!fg.details.has(lid) && fg.rows.has(lid) && fg.want !== lid) {
@@ -339,6 +359,7 @@ function ListingFile({ x }: { x: Dict }) {
     <>
       <div><span style={{ color: AMBER }}>CATALOG ENTRY</span><span style={{ color: DIM }}>  //  {lid}</span></div><br />
       <div className="facts">{rows.flatMap(([a, b], i) => [<span key={i}>{a}</span>, <span key={i + "v"} className="sel-text">{typeof b === "string" ? b : <L line={b} />}</span>])}</div>
+      <Previews x={x} lid={lid} />
       {blurb ? <><br /><div className="sel-text" style={{ whiteSpace: "pre-wrap" }}>{shorten(blurb, 700)}</div></> : null}
       {x._error ? <><br /><div style={{ color: RED }}>{x._error}</div></> : null}
       {vs.length ? <div style={{ marginTop: 12, maxHeight: 230, display: "flex" }}><Table cols={["", "VERSION", "PUBLISHED", "NOTES"]} rows={vrows} selected={fg.version} onSelect={(id) => { fg.version = id; force((n) => n + 1); }} /></div> : null}
@@ -379,7 +400,7 @@ export function Forge() {
   fg.rows = new Map();
   for (const x of fg.listings) {
     const lid = listingId(x), kind = kindOf(x), author = authorOf(x), recent = recentOf(x, fg.window);
-    if (!lid || fg.rows.has(lid) || (query && ![titleOf(x), author, kind].some((t) => t.toLowerCase().includes(query)))) continue;
+    if (!lid || fg.rows.has(lid) || (query && !fuzzy.matches(query, titleOf(x), author, kind))) continue;
     fg.rows.set(lid, x);
     rows.push({ id: lid, cells: [mark(x), [[kind.toUpperCase() || "—", KIND_COLOR[kind] ?? DIM]], [[titleOf(x), WHITE]], [[author || "—", author ? WHITE : DIM]],
       rating(x), recent !== undefined ? String(recent) : "—", fit(x)] });

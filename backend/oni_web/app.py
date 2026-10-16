@@ -162,7 +162,7 @@ def create_app(settings: Settings | None = None):
             "X-Frame-Options": "DENY", "Cross-Origin-Resource-Policy": "same-origin",
             "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
         })
-        if request.url.path.startswith("/api/"):
+        if request.url.path.startswith("/api/") and not request.url.path.startswith("/api/forge/image/"):
             response.headers["Cache-Control"] = "no-store"
         else:
             response.headers["Content-Security-Policy"] = (
@@ -426,6 +426,57 @@ def create_app(settings: Settings | None = None):
         a = await request.json()
         shutil.rmtree(batch_dir(root, str(a.get("batch", ""))), ignore_errors=True)
         return {"ok": True}
+
+    # IBIGS 2026-10-16: small previews of a Forge listing's screenshots. Forge serves only full-size PNGs (2560x1440,
+    # ~650 KB); this fetches one from Forge itself (fixed https origin, no key: they are public), shrinks it to a
+    # 480 px JPEG and keeps it on disk, so browsers get ~30 KB from this console instead.
+    thumb_gate = asyncio.Semaphore(3)
+    UUID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+
+    def make_preview(url: str, out: Path) -> None:
+        from io import BytesIO
+        from urllib.request import Request as UrlRequest, urlopen as url_open
+        from PIL import Image
+        Image.MAX_IMAGE_PIXELS = 40_000_000
+        with url_open(UrlRequest(url, headers={"User-Agent": "oni-web (IBIGS)"}), timeout=20) as r:
+            if not str(r.headers.get("content-type", "")).startswith("image/"):
+                raise ValueError("not an image")
+            raw = r.read(16 * 1024 * 1024 + 1)
+        if len(raw) > 16 * 1024 * 1024:
+            raise ValueError("image too big")
+        with Image.open(BytesIO(raw)) as im:
+            im.draft("RGB", (960, 540))
+            im = im.convert("RGB")
+            im.thumbnail((480, 270))
+            buf = BytesIO()
+            im.save(buf, "JPEG", quality=78, optimize=True, progressive=True)
+        tmp = out.with_suffix(".tmp")
+        tmp.write_bytes(buf.getvalue())
+        tmp.replace(out)
+        kept = sorted(out.parent.glob("*.jpg"), key=lambda p: p.stat().st_mtime)
+        for old in kept[:-400]:
+            with contextlib.suppress(OSError):
+                old.unlink()
+
+    @app.get("/api/forge/image/{lid}/{image}")
+    async def forge_image(lid: str, image: str, v: str = ""):
+        from oni_rcon.forge import FORGE_URL
+        if not UUID.fullmatch(lid) or not (image == "thumb" or UUID.fullmatch(image)) or not re.fullmatch(r"\d{0,24}", v):
+            raise HTTPException(404, "No such image")
+        folder = settings.data_dir / "forge-previews"
+        folder.mkdir(parents=True, exist_ok=True)
+        out = folder / f"{lid}-{image}-{v or 0}.jpg"
+        if not out.exists():
+            path = f"/api/listings/{lid}/thumbnail" + (f"?v={v}" if v else "") if image == "thumb" else \
+                f"/api/listings/{lid}/images/{image}"
+            async with thumb_gate:
+                if not out.exists():
+                    try:
+                        await asyncio.to_thread(make_preview, FORGE_URL + path, out)
+                    except Exception as e:  # Forge down, 404, not an image: the panel just shows no picture
+                        log.info("forge preview %s/%s: %s", lid, image, type(e).__name__)
+                        raise HTTPException(404, "No preview") from None
+        return FileResponse(out, media_type="image/jpeg", headers={"Cache-Control": "private, max-age=86400"})
 
     @app.post("/api/rpc/{name}")
     async def rpc(name: str, request: Request):

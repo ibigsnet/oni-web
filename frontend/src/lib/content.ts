@@ -8,6 +8,7 @@
 //   {kind: "variant", reference: "default_guardian_012.mvar"}                      Halo 3 / Matchmaking, built in
 //   {kind: "variant", name: "MLG Guardian", reference: "MLG Guardian"}             saved in MCC, or Workshop
 // Nothing here talks to a server or to Forge: it is given what they said and returns rows to show.
+import * as fuzzy from "./fuzzy";
 import { authorOf, kindOf, latestOf, listingId, metricsOf, norm, recentOf, refsOf, titleOf, versionLabel, votesOf } from "./forge";
 import { num, pick, type Dict } from "./util";
 
@@ -168,7 +169,7 @@ export function arrange(items: Item[], what: "maps" | "modes", how = "name", tex
   const ws = text.toLowerCase().split(/\s+/).filter(Boolean);
   const out: [Group, string, Item[]][] = [];
   for (const [key, title] of what === "maps" ? MAP_GROUPS : MODE_GROUPS) {
-    const rows = ordered(items.filter((i) => i.group === key && ws.every((w) => words(i).includes(w))), how, flip);
+    const rows = ordered(items.filter((i) => i.group === key && (!ws.length || fuzzy.matches(text, words(i)))), how, flip);
     if (rows.length) out.push([key, title, rows]);
   }
   return out;

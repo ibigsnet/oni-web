@@ -175,3 +175,5 @@ pre.json .k { color: var(--cyan); } pre.json .s { color: var(--green); } pre.jso
 .fatal { position: fixed; inset: 0; z-index: 100; background: var(--ink); color: var(--white); padding: 24px; overflow: auto; user-select: text; }
 .fatal pre { white-space: pre-wrap; color: var(--grey); }
 .lbl { display: block; color: var(--cyan); margin: 10px 0 2px; }
+.forge-previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
+.forge-previews img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--faint, #222); background: #0b0f14; }
