@@ -49,6 +49,8 @@ export function Session() {
       <button className="btn primary" disabled={busy}>{busy ? "VERIFYING…" : "SIGN IN"}</button></>
       : <button className="btn primary" type="button" onClick={check}>OPEN LOCAL CONSOLE</button>}
     {error && <p className="web-error" role="alert">{error}</p>}
+    {required && <p className="web-hint">IBIGS customers: open <a href="https://app.ibigs.us/servers">app.ibigs.us</a>, pick
+      your server and press <b>Web console</b> to sign in without a token. On the server itself, <code>oni web-token</code> prints it.</p>}
     <small>Credentials remain in the server gateway. Sessions expire after eight hours.</small>
   </form></main>;
   return <div className="web-shell"><div className="web-toolbar">

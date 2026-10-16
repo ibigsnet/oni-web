@@ -4,6 +4,8 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import hmac
+import binascii
+import base64
 import json
 import logging
 import os
@@ -18,7 +20,7 @@ from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, Response
 from pydantic import ValidationError
 from starlette.staticfiles import StaticFiles
 
@@ -208,6 +210,53 @@ def create_app(settings: Settings | None = None):
         sid = secrets.token_urlsafe(32)
         sessions[sid] = time.time() + SESSION_SECONDS
         response = JSONResponse({"ok": True})
+        response.set_cookie(COOKIE, sid, max_age=SESSION_SECONDS, httponly=True,
+                            secure=settings.secure_cookie, samesite="strict", path="/")
+        return response
+
+    # IBIGS 2026-10-16: one-click sign-in from the hosting panel. the hosting panel checks that the signed-in customer owns
+    # this server, then sends the browser here with a ticket it signed: base64url(JSON {sid, exp, n}) "." hex
+    # HMAC-SHA256 under ONI_WEB_SSO_SECRET (shared only by the hosting panel and this server). The ticket must name this
+    # server (ONI_WEB_SSO_SERVER), expire within two minutes and be unused; it then opens the same session a
+    # token login does. The answer is a page that moves on by itself: a same-site navigation, so the SameSite=Strict
+    # session cookie is sent (a redirect inside the panel's cross-site click would drop it).
+    sso_seen: dict[str, float] = {}
+
+    @app.get("/sso")
+    async def sso(request: Request, ticket: str = ""):
+        login_budget.take(request.client.host if request.client else "unknown")
+        secret = os.getenv("ONI_WEB_SSO_SECRET", "")
+        server = os.getenv("ONI_WEB_SSO_SERVER", "")
+        now = time.time()
+        try:
+            if len(secret) < 32 or not server or len(ticket) > 600 or "." not in ticket:
+                raise ValueError
+            body, sig = ticket.rsplit(".", 1)
+            good = hmac.new(secret.encode(), body.encode(), "sha256").hexdigest()
+            if not hmac.compare_digest(sig.encode(), good.encode()):
+                raise ValueError
+            data = json.loads(base64.urlsafe_b64decode(body + "=" * (-len(body) % 4)))
+            nonce = str(data.get("n", ""))
+            if (str(data.get("sid")) != server or not (now < float(data.get("exp", 0)) <= now + 120)
+                    or len(nonce) < 16 or nonce in sso_seen):
+                raise ValueError
+        except (ValueError, TypeError, binascii.Error, json.JSONDecodeError):
+            return HTMLResponse("<!doctype html><title>Sign-in link expired</title><body style=\"font-family:sans-serif;"
+                                "background:#111;color:#ddd;padding:3em\"><h2>This sign-in link has expired</h2>"
+                                "<p>Open the console again from your server's page in the panel.</p>", 403)
+        for n in [n for n, t in sso_seen.items() if t <= now]:
+            del sso_seen[n]
+        sso_seen[nonce] = float(data["exp"]) + 1
+        for sid in list(sessions):
+            if sessions[sid] <= now:
+                del sessions[sid]
+        if len(sessions) >= 100:
+            raise LimitError("Too many active sessions")
+        sid = secrets.token_urlsafe(32)
+        sessions[sid] = now + SESSION_SECONDS
+        page = ("<!doctype html><meta charset=utf-8><meta http-equiv=\"refresh\" content=\"0;url=/\">"
+                "<title>Signing in…</title><body style=\"background:#111\">")
+        response = HTMLResponse(page, headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
         response.set_cookie(COOKIE, sid, max_age=SESSION_SECONDS, httponly=True,
                             secure=settings.secure_cookie, samesite="strict", path="/")
         return response

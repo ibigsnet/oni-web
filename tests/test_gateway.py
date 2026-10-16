@@ -307,3 +307,44 @@ def test_unexpected_errors_do_not_leak_credentials_into_responses_or_logs(tmp_pa
             assert "sensitive-command-output-do-not-log" not in json.dumps(body)
             assert "sensitive-command-output-do-not-log" not in caplog.text
     run(scenario())
+
+
+def sso_ticket(secret, server, exp, nonce="n" * 22):
+    import base64, hashlib, hmac as _hmac
+    body = base64.urlsafe_b64encode(json.dumps({"sid": server, "exp": exp, "n": nonce}).encode()).decode().rstrip("=")
+    return body + "." + _hmac.new(secret.encode(), body.encode(), hashlib.sha256).hexdigest()
+
+
+def test_panel_sso_ticket_opens_one_session(tmp_path, monkeypatch):
+    import time
+    secret = "s" * 48
+    monkeypatch.setenv("ONI_WEB_SSO_SECRET", secret)
+    monkeypatch.setenv("ONI_WEB_SSO_SERVER", "15")
+
+    async def scenario():
+        async with gateway(tmp_path, token="t" * 40) as (app, base):
+            assert (await http(base, "/api/profiles"))[0] == 401
+            good = sso_ticket(secret, "15", time.time() + 60)
+            status, page, headers = await http(base, "/sso?ticket=" + good)
+            assert status == 200 and "url=/" in page
+            cookie = headers["set-cookie"].split(";", 1)[0]
+            assert "HttpOnly" in headers["set-cookie"] and "SameSite=strict" in headers["set-cookie"]
+            assert (await http(base, "/api/profiles", cookie=cookie))[0] == 200
+            assert (await http(base, "/sso?ticket=" + good))[0] == 403                                  # single use
+            assert (await http(base, "/sso?ticket=" + sso_ticket(secret, "16", time.time() + 60, "a" * 22)))[0] == 403  # other server
+            assert (await http(base, "/sso?ticket=" + sso_ticket(secret, "15", time.time() - 1, "b" * 22)))[0] == 403  # expired
+            assert (await http(base, "/sso?ticket=" + sso_ticket(secret, "15", time.time() + 999, "c" * 22)))[0] == 403  # too long
+            assert (await http(base, "/sso?ticket=" + sso_ticket("x" * 48, "15", time.time() + 60, "d" * 22)))[0] == 403  # wrong key
+            assert (await http(base, "/sso?ticket=garbage"))[0] == 403
+    run(scenario())
+
+
+def test_panel_sso_off_without_secret(tmp_path, monkeypatch):
+    import time
+    monkeypatch.delenv("ONI_WEB_SSO_SECRET", raising=False)
+    monkeypatch.setenv("ONI_WEB_SSO_SERVER", "15")
+
+    async def scenario():
+        async with gateway(tmp_path, token="t" * 40) as (app, base):
+            assert (await http(base, "/sso?ticket=" + sso_ticket("", "15", time.time() + 60)))[0] == 403
+    run(scenario())
