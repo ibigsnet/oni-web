@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { App } from "../App";
 import { oni } from "../engine";
 import { api, closeEvents, signOut } from "./bridge";
+import { ServerUploadButton } from "./ServerUpload";
 import "./web.css";
 
 export function Session() {
@@ -58,6 +59,7 @@ export function Session() {
     <span role="status" className={stream.connected ? "web-online" : "web-muted"}>
       <span aria-hidden="true">●</span> {stream.connected ? "GATEWAY LIVE" : stream.detail || "GATEWAY READY"}
     </span>
-    <button onClick={() => signOut().catch((e) => setError(String(e)))}>{required ? "SIGN OUT" : "END SESSION"}</button>
+    <span className="web-toolbar-actions"><ServerUploadButton />
+    <button onClick={() => signOut().catch((e) => setError(String(e)))}>{required ? "SIGN OUT" : "END SESSION"}</button></span>
   </div>{error && <div className="web-error" role="alert">{error}</div>}<div className="web-content"><App key={revision} /></div></div>;
 }

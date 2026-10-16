@@ -11,6 +11,7 @@ import logging
 import os
 import re
 import secrets
+import shutil
 import time
 import tomllib
 import uuid
@@ -142,7 +143,7 @@ def create_app(settings: Settings | None = None):
             except LimitError as e:
                 return JSONResponse({"detail": str(e)}, 429, headers={"Retry-After": "60"})
             # Reject oversized JSON before Pydantic or JSON parsing. Streaming uploads have their own bound.
-            if request.method in ("POST", "PUT", "PATCH") and request.url.path != "/api/uploads":
+            if request.method in ("POST", "PUT", "PATCH") and request.url.path not in ("/api/uploads", "/api/server-upload"):
                 body = bytearray()
                 async for chunk in request.stream():
                     body.extend(chunk)
@@ -319,6 +320,112 @@ def create_app(settings: Settings | None = None):
             raise ValueError("Upload 1–10 nonempty files totaling at most 100 MiB")
         files.append((filename, bytes(payload)))
         return {"name": filename, "size": len(payload)}
+
+    # IBIGS 2026-10-16: "upload to my server". Files stream to disk (never memory) in the server's Upload folder,
+    # mounted at ONI_WEB_SERVER_UPLOAD_DIR; the server's own sorter (ibigs-content-upload) then puts mods, server
+    # files, lobby settings and Forge content where they belong and leaves a note in Upload/done or Upload/failed.
+    # A batch (one file or one folder) is written under .web-<batch>/ and only moved into view when it is complete.
+    SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9 ._()+\-\[\]',&!#@~]{0,127}")
+
+    def upload_root() -> Path:
+        root = os.getenv("ONI_WEB_SERVER_UPLOAD_DIR", "")
+        if not root or not Path(root).is_dir():
+            raise HTTPException(404, "Uploading to this server isn't set up")
+        return Path(root)
+
+    def batch_dir(root: Path, batch: str) -> Path:
+        if not re.fullmatch(r"[A-Za-z0-9-]{8,64}", batch):
+            raise ValueError("Bad upload batch")
+        return root / f".web-{batch}"
+
+    @app.get("/api/server-upload")
+    async def server_upload_status():
+        root = upload_root()
+        results = []
+        for state in ("done", "failed"):
+            folder = root / state
+            if not folder.is_dir():
+                continue
+            for note in folder.glob("*.txt"):
+                with contextlib.suppress(OSError):
+                    results.append({"state": state, "name": note.name[:-4], "at": note.stat().st_mtime,
+                                    "text": note.read_text(errors="replace")[:2000]})
+        waiting = sorted(p.name for p in root.iterdir() if p.name not in ("done", "failed") and not p.name.startswith("."))
+        free = shutil.disk_usage(root).free
+        return {"results": sorted(results, key=lambda r: r["at"], reverse=True)[:30], "waiting": waiting,
+                "free_bytes": free}
+
+    @app.post("/api/server-upload")
+    async def server_upload(request: Request):
+        root = upload_root()
+        batch = request.headers.get("x-oni-batch", "")
+        from urllib.parse import unquote
+        rel = unquote(request.headers.get("x-oni-path", ""))
+        parts = [p for p in rel.replace("\\", "/").split("/") if p]
+        if not parts or len(parts) > 12 or not all(SEGMENT.fullmatch(p) and p not in (".", "..") for p in parts):
+            raise ValueError("Use simple file and folder names (letters, numbers, spaces, . _ - ( ) [ ])")
+        size = int(request.headers.get("content-length") or 0)
+        if size <= 0 or size > 32 * 1024 ** 3:
+            raise ValueError("Each file must be between 1 byte and 32 GB")
+        if shutil.disk_usage(root).free < size + 1024 ** 3:
+            raise ValueError("Not enough free disk space on the server for this file")
+        base = batch_dir(root, batch)
+        target = base.joinpath(*parts)
+        base.mkdir(mode=0o775, exist_ok=True)
+        target.parent.mkdir(mode=0o775, parents=True, exist_ok=True)
+        if target.exists():
+            raise ValueError(f"{rel} was already sent in this upload")
+        written = 0
+        fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o664)
+        try:
+            async for chunk in request.stream():
+                written += len(chunk)
+                if written > size:
+                    raise ValueError("The file is bigger than announced")
+                view = memoryview(chunk)
+                while view:
+                    view = view[os.write(fd, view):]
+        except BaseException:
+            os.close(fd)
+            fd = -1
+            with contextlib.suppress(OSError):
+                target.unlink()
+            raise
+        finally:
+            if fd >= 0:
+                os.close(fd)
+        return {"path": "/".join(parts), "size": written}
+
+    @app.post("/api/server-upload/done")
+    async def server_upload_done(request: Request):
+        root = upload_root()
+        a = await request.json()
+        base = batch_dir(root, str(a.get("batch", "")))
+        if not base.is_dir():
+            raise ValueError("Nothing was uploaded in this batch")
+        moved = []
+        for item in sorted(base.iterdir()):
+            dest = root / item.name
+            n = 2
+            while dest.exists():
+                stem, dot, ext = item.name.rpartition(".") if item.is_file() else (item.name, "", "")
+                dest = root / (f"{stem}-{n}.{ext}" if dot else f"{item.name}-{n}")
+                n += 1
+            # older timestamps: the sorter waits for folders to settle; this one is complete
+            for p in [item, *item.rglob("*")] if item.is_dir() else [item]:
+                with contextlib.suppress(OSError):
+                    os.utime(p, (time.time() - 120, time.time() - 120), follow_symlinks=False)
+            item.rename(dest)
+            moved.append(dest.name)
+        shutil.rmtree(base, ignore_errors=True)
+        return {"queued": moved}
+
+    @app.post("/api/server-upload/cancel")
+    async def server_upload_cancel(request: Request):
+        root = upload_root()
+        a = await request.json()
+        shutil.rmtree(batch_dir(root, str(a.get("batch", ""))), ignore_errors=True)
+        return {"ok": True}
 
     @app.post("/api/rpc/{name}")
     async def rpc(name: str, request: Request):

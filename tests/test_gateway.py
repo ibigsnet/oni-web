@@ -348,3 +348,48 @@ def test_panel_sso_off_without_secret(tmp_path, monkeypatch):
         async with gateway(tmp_path, token="t" * 40) as (app, base):
             assert (await http(base, "/sso?ticket=" + sso_ticket("", "15", time.time() + 60)))[0] == 403
     run(scenario())
+
+
+def test_server_upload_streams_into_the_upload_folder(tmp_path, monkeypatch):
+    up = tmp_path / "Upload"
+    (up / "done").mkdir(parents=True)
+    (up / "done" / "old.zip.txt").write_text("2026: OK, unpacked\n")
+    monkeypatch.setenv("ONI_WEB_SERVER_UPLOAD_DIR", str(up))
+
+    async def send(base, path, data, batch="batch-0001"):
+        def go():
+            request = Request(base + "/api/server-upload", data=data, method="POST",
+                              headers={"X-ONI-Request": "1", "X-ONI-Batch": batch, "X-ONI-Path": path,
+                                       "Content-Type": "application/octet-stream"})
+            try:
+                with urlopen(request, timeout=15) as r:
+                    return r.status, json.loads(r.read())
+            except HTTPError as e:
+                with e:
+                    return e.code, json.loads(e.read())
+        return await asyncio.to_thread(go)
+
+    async def scenario():
+        async with gateway(tmp_path / "state") as (app, base):
+            assert (await send(base, "Cool%20Mod/ModInfo.json", b'{"Title":"x"}'))[0] == 200
+            assert (await send(base, "Cool%20Mod/maps/cool.map", b"\0" * 5000))[0] == 200
+            assert (await send(base, "../evil", b"x"))[0] == 400
+            assert (await send(base, "a/../../evil", b"x"))[0] == 400
+            assert (await send(base, "x.toml", b"x", batch="../../etc"))[0] == 400
+            assert not list(up.glob("Cool*"))                               # invisible until the batch is done
+            status, body, _ = await http(base, "/api/server-upload/done", "POST", {"batch": "batch-0001"})
+            assert status == 200 and body["queued"] == ["Cool Mod"]
+            assert (up / "Cool Mod" / "maps" / "cool.map").stat().st_size == 5000
+            assert not list(up.glob(".web-*"))
+            status, body, _ = await http(base, "/api/server-upload")
+            assert status == 200 and body["waiting"] == ["Cool Mod"] and body["results"][0]["name"] == "old.zip"
+    run(scenario())
+
+
+def test_server_upload_off_without_folder(tmp_path, monkeypatch):
+    monkeypatch.delenv("ONI_WEB_SERVER_UPLOAD_DIR", raising=False)
+
+    async def scenario():
+        async with gateway(tmp_path) as (app, base):
+            assert (await http(base, "/api/server-upload"))[0] == 404
+    run(scenario())
