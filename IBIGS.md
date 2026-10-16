@@ -34,3 +34,13 @@ wrapper on the VM are NOT here yet; the container cannot exec the wrapper. Plan:
 - F3 playlist deploy via the wrapper; one-click Forge DEPLOY (ibigs.24)
 - F9 game/console updates with the progress view (ibigs.22)
 - Superintendent status words for long operations (ibigs.24)
+
+## One-click sign-in (2026-10-16)
+the hosting panel `/ibigs/oni-web.php` checks the customer owns the server, then returns
+`https://<name>.console.ibigs.us/sso?ticket=…` — base64url(JSON `{sid, exp, n}`) + `.` + hex HMAC-SHA256 under a
+per-server secret (`SSO_SECRET_<id>` in `/etc/ibigs/oni-web.env` on the hosting panel = `ONI_WEB_SSO_SECRET` in the VM,
+`/srv/ibigs/oni-web/sso.secret`). The console accepts a ticket once, only for its own `ONI_WEB_SSO_SERVER`, and only
+within 2 minutes, then sets the normal 8 h session cookie. No secret configured → plain URL, token login as before.
+Operator scripts (in ~/tools/oni-web-mirror): `oni-web-setup.sh <name> <server id>` (in the VM, builds this fork
+from `/root/oni-web-<sha>.tgz`), `ibigs-oni-web-register.sh <node-b host> <vmid> <server id>` (makes/rotates the secret).
+Fallback for owners on the VM: `oni web-token` prints the console address and token.
