@@ -8,7 +8,7 @@ RUN npm run build
 FROM python:3.12-slim
 RUN apt-get update && apt-get install -y --no-install-recommends openssh-client \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home --uid 10001 operator
+    && (groupadd -f operator && useradd --create-home --uid 10001 -g operator operator)
 WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
