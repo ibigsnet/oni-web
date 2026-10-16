@@ -1,7 +1,7 @@
 // Typo-tolerant search shared by every search box (IBIGS 2026-10-16; same rules as oni-rcon's fuzzy.py).
 // Every term must match: as a substring, or a word within one slip (4-7 letters) or two (8+), a swap counting as
 // one, so "gluch" finds "Gulch". A term also matches the start of a longer word ("valhal"). Terms under 4 letters
-// must match exactly.
+// must match exactly, as must any term with a digit (ports, IDs).
 
 export const norm = (v: unknown) => String(v ?? "").normalize("NFKC").toLowerCase();
 
@@ -15,7 +15,7 @@ export function terms(query: string): string[] {
   return out;
 }
 
-const limitFor = (t: string) => (t.length < 4 ? 0 : t.length < 8 ? 1 : 2);
+const limitFor = (t: string) => (t.length < 4 || /\d/.test(t) ? 0 : t.length < 8 ? 1 : 2);  // digits: exact only
 const memo = new Map<string, number>();
 
 export function distance(a: string, b: string, limit: number): number {
@@ -71,6 +71,10 @@ export const matches = (query: string, ...texts: unknown[]) => score(query, ...t
 
 /** Matching items, closest first (stable among equals). */
 export function rank<T>(query: string, items: T[], textOf: (x: T) => unknown[]): T[] {
-  return items.map((x, i) => ({ x, i, s: score(query, ...textOf(x)) }))
-    .filter((r) => r.s !== null).sort((a, b) => (a.s as number) - (b.s as number) || a.i - b.i).map((r) => r.x);
+  const phrase = terms(query).join(" ");
+  return items.map((x, i) => {
+    const texts = textOf(x);
+    const whole = !!phrase && norm(texts.map((t) => String(t ?? "")).join(" ")).includes(phrase);
+    return { x, i, s: score(query, ...texts), w: whole ? 0 : 1 };
+  }).filter((r) => r.s !== null).sort((a, b) => a.w - b.w || (a.s as number) - (b.s as number) || a.i - b.i).map((r) => r.x);
 }

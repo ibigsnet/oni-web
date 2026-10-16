@@ -17,3 +17,10 @@ describe("fuzzy search", () => {
     expect(rank("gulch", ["Gluch Arena", "Huge Gulch", "Guardian"], (x) => [x])).toEqual(["Huge Gulch", "Gluch Arena"]);
   });
 });
+
+describe("numbers and phrases", () => {
+  it("matches numbers exactly and puts whole phrases first", () => {
+    expect(matches("49002", "port 49001")).toBe(false);
+    expect(rank("server 9", ["Server 8 :49009", "Server 9 :49011"], (x) => [x])).toEqual(["Server 9 :49011", "Server 8 :49009"]);
+  });
+});

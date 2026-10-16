@@ -4,7 +4,7 @@ A query is split into terms (quotes keep a phrase together); every term must mat
 is a plain substring, or when some word of the text is within a small edit distance of it (one slip for words of
 4-7 letters, two from 8): swapped letters count as one slip, so "gluch" finds "Gulch" and "valhala" finds
 "Valhalla". A term also matches the start of a longer word with the same tolerance, so "valhal" works while typing.
-Terms under 4 letters must match exactly: short typos would match nearly everything.
+Terms under 4 letters, and any term with a digit in it (ports, IDs, versions), must match exactly.
 """
 from __future__ import annotations
 
@@ -29,7 +29,9 @@ def terms(query: str) -> list[str]:
 
 
 def limit_for(term: str) -> int:
-    return 0 if len(term) < 4 else 1 if len(term) < 8 else 2
+    if len(term) < 4 or any(c.isdigit() for c in term):  # ports, IDs, versions: exact only
+        return 0
+    return 1 if len(term) < 8 else 2
 
 
 @lru_cache(maxsize=16384)
@@ -88,6 +90,13 @@ def matches(query: str, *texts) -> bool:
 
 
 def rank(query: str, items, text_of):
-    """Items that match, closest first (stable among equals)."""
-    scored = [(score(query, *text_of(x)), i, x) for i, x in enumerate(items)]
-    return [x for s, i, x in sorted((s, i, x) for s, i, x in scored if s is not None)]
+    """Items that match, closest first: the whole query word for word, then fewest slips (stable among equals)."""
+    phrase = " ".join(terms(query))
+    out = []
+    for i, x in enumerate(items):
+        texts = text_of(x)
+        s = score(query, *texts)
+        if s is not None:
+            whole = bool(phrase) and phrase in norm(" ".join(str(t or "") for t in texts))
+            out.append((not whole, s, i, x))
+    return [x for *_, x in sorted(out, key=lambda r: r[:3])]
