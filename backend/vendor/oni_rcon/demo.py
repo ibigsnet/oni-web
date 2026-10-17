@@ -58,11 +58,21 @@ class Fake:
                 "engine_id": self.engine, "guest_players": []}
 
     def installed(self, suffix: str) -> list[dict]:
-        """What's in the content folder, as the maps or modes list names it: the fake Forge's .map and .gt files."""
+        """What's in the content folder, as the maps or modes list names it: the fake Forge's map and game type JSON."""
         if not (self.content and self.content.is_dir()):
             return []
-        return [{"kind": "map" if suffix == ".map" else "mode", "name": f.stem.replace("_", " ").title(),
-                 "reference": f.stem} for f in sorted(self.content.rglob(f"*{suffix}"))]
+        out = []
+        for f in sorted(self.content.rglob("*.json")):
+            try:
+                doc = json.loads(f.read_text())
+            except (OSError, ValueError):
+                continue
+            is_mode = isinstance(doc, dict) and "packed_game" in doc
+            is_map = isinstance(doc, dict) and isinstance(doc.get("map"), dict) and "data" in doc["map"]
+            if (suffix == ".map" and is_map) or (suffix == ".gt" and is_mode):
+                out.append({"kind": "map" if is_map else "mode", "name": f.stem.replace("_", " ").title(),
+                            "reference": f.stem})
+        return out
 
     def _renumber(self):
         for i, p in enumerate(self.players, 1):

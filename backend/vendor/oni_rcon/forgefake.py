@@ -36,7 +36,25 @@ PLAYLISTS = ["Community Picks", "Big Team Remix", "Party Night"]
 BLURBS = ["**Rebuilt** from scratch for Reclaimer.\n\nSpawns are tuned for 8v8. See [the thread](https://example.org).",
           "A *fast* one. Short sightlines, three power weapons.",
           "Plays best with 12 or more.\n\n- Two bases\n- No vehicles", "Made for the weekend crowd."]
-EXT = {"map": ".map", "gametype": ".gt", "playlist": ".playlist"}
+EXT = {"map": ".json", "gametype": ".json", "playlist": ".json"}
+
+
+def demo_file(kind: str, title: str, label: str, rnd: random.Random) -> bytes:
+    """A file shaped like a real ReclaimerForge asset of this kind (filler where the game's data would be)."""
+    import base64
+    fill = (f"{title} {label} | ONI demo filler\n".encode() * 3000)
+    base = {"id": 30, "stem": rnd.choice(["guardian", "riverworld", "zanzibar", "construct"])}
+    if kind == "playlist":
+        doc = {"version": 2, "name": title, "vote_seconds": 30,
+               "games": [{"map": m, "game": g} for m, g in (("guardian", "slayer"), ("riverworld", "ctf"))]}
+    elif kind == "gametype":
+        doc = {"version": 1, "name": title, "author": "ONI demo", "base_map": base, "hosting": {}, "map": {},
+               "mode": "ctf", "rules": {}, "options": {"note": label},
+               "packed_game": {"data": base64.b64encode(b"_blf" + fill[:rnd.randint(2000, 9000)]).decode()}}
+    else:
+        doc = {"version": 1, "name": title, "base_map": base, "hosting": {}, "mode": "forge", "rules": {},
+               "map": {"data": base64.b64encode((fill * 2)[:57504]).decode()}}
+    return json.dumps(doc).encode()
 
 
 def slug(s: str) -> str:
@@ -100,8 +118,8 @@ class FakeForge:
             self._version(x, f"1.{k}", self.t0 - timedelta(days=20 - 6 * k))
 
     def _version(self, x: dict, label: str, when: datetime) -> dict:
-        size = self.rnd.randint(3000, 60000)
-        blob = (f"{x['title']} {label} | ONI demo filler\n".encode() * (size // 20 + 1))[:size]
+        blob = demo_file(x["kind"], x["title"], label, self.rnd)
+        size = len(blob)
         sha = hashlib.sha256(blob).hexdigest()
         self.blobs[sha] = blob
         v = {"id": f"ver_{self.rnd.getrandbits(40):010x}", "version_label": label, "created_at": utc_iso(when),

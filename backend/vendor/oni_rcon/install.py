@@ -67,6 +67,8 @@ def plan(manifest: dict) -> list[File]:
         except ValueError:
             raise InstallError(f"The manifest gives no SHA-256 for {path}, so it can't be checked. "
                                "Nothing was installed.") from None
+        if Path(path).suffix.lower() not in {'.json', '.mvar', '.bin'}:  # IBIGS: Forge content only
+            raise InstallError(f"{path} isn't a Forge map, game type or playlist file. Nothing was installed.")
         if not isinstance(size, int) or isinstance(size, bool) or not 0 <= size <= MAX_ASSET:
             raise InstallError(f"The manifest gives {path} no size oni-rcon will accept. Nothing was installed.")
         if not url:
@@ -76,6 +78,71 @@ def plan(manifest: dict) -> list[File]:
         seen.add(path.lower())
         out.append(File(path, str(url), size, sha))
     return out
+
+
+HOLDS_URL = os.environ.get("ONI_FORGE_HOLDS_URL", "https://prstatus.ibigs.us/forge-holds.json")
+REPORT_URL = os.environ.get("ONI_FORGE_REPORT_URL", "https://prstatus.ibigs.us/forge-report")
+_holds: tuple[float, set] = (0.0, set())
+
+
+def held(listing_id: str, version_id: str) -> str | None:
+    """Why IBIGS holds this ReclaimerForge release for review, or None. Read at most every 5 minutes; when the
+    list can't be read the install still goes ahead (every file is checked here anyway)."""
+    global _holds
+    import json
+    import time
+    import urllib.request
+    if not HOLDS_URL or not listing_id:
+        return None
+    if time.monotonic() - _holds[0] > 300:
+        try:
+            with urllib.request.urlopen(HOLDS_URL, timeout=5) as r:
+                doc = json.loads(r.read(1 << 20))
+            _holds = (time.monotonic(), {(h.get("listing_id"), h.get("version_id"), h.get("reason") or "")
+                                         for h in doc.get("holds", []) if isinstance(h, dict)})
+        except (OSError, ValueError):
+            return None
+    for lid, vid, why in _holds[1]:
+        if lid == listing_id and vid in (version_id, None, ""):
+            return why or "held for review"
+    return None
+
+
+def report(listing_id: str, version_id: str, path: str, reason: str) -> None:
+    """Tell IBIGS a Forge file failed the check (it re-checks the release itself before holding it). Best effort."""
+    import json
+    import threading
+    import urllib.request
+    if not REPORT_URL or not listing_id:
+        return
+    body = json.dumps({"listing_id": listing_id, "version_id": version_id, "path": path,
+                       "reason": reason[:300]}).encode()
+
+    def send():
+        try:
+            req = urllib.request.Request(REPORT_URL, data=body, headers={"Content-Type": "application/json"})
+            urllib.request.urlopen(req, timeout=10).read()
+        except OSError:
+            pass
+    threading.Thread(target=send, daemon=True).start()
+
+
+def vet(files: list[File], local: list, listing_id: str = "", version_id: str = "") -> None:
+    """IBIGS 2026-10-17: before any file is written to the server, the release must not be held for review by
+    IBIGS, and every downloaded file must be strictly Halo 3 content (oni_rcon.h3check: Forge files are only map /
+    game type / playlist data in Reclaimer's own shapes). A failing file is reported to IBIGS, which re-checks the
+    release and holds it for every server (with a Discord alert) when it fails there too."""
+    from . import h3check
+    why = held(listing_id, version_id)
+    if why:
+        raise InstallError(f"IBIGS is holding this release for review ({why}). Nothing was installed.")
+    for f, path in zip(files, local):
+        try:
+            h3check.check_path(path, f.path, "forge")
+        except h3check.Rejected as e:
+            report(listing_id, version_id, f.path, str(e))
+            raise InstallError(f"{f.path} didn't pass the Halo 3 file check ({e}). IBIGS has been told and will "
+                               "review this release. Nothing was installed.") from None
 
 
 def size_words(n: int) -> str:

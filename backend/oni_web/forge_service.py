@@ -173,6 +173,7 @@ async def put(h, id_):
         if there - p["existing"]:
             raise install.InstallError("Destination changed since review. Review a new install plan")
         local = [await c.download(f.url, f.size, f.sha256) for f in files]
+        install.vet(files, local, f.listing_id(x), f.version_id(v))  # IBIGS: not held, strictly Halo 3 content
         for f_, path in zip(files, local):
             # Upstream path validation is lexical. Additionally reject symlinks at the web trust boundary.
             if isinstance(target, install.LocalTarget):
