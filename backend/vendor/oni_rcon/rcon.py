@@ -19,6 +19,10 @@ from websockets.asyncio.client import connect
 from websockets.exceptions import WebSocketException
 
 
+class ConsoleFull(Exception):
+    """The password was right but the server's tool spots are all in use."""
+
+
 class Rcon:
     """One signed-in connection per server, shared by commands and the event stream: servers admit only 4 tools."""
 
@@ -54,6 +58,9 @@ class Rcon:
                     reply = json.loads(await asyncio.wait_for(ws.recv(), 10))
                 if not isinstance(reply, dict):
                     raise ValueError("that port doesn't speak RCON")
+                if not reply.get("ok") and reply.get("full"):
+                    # IBIGS: right password, every spot taken (servers admit 4 tools): wait for one to free up
+                    raise ConsoleFull("server console full (4 tools connected)")
                 if not reply.get("ok"):
                     # Never retry a refused sign-in: 5 wrong passwords in 10 min lock the address out.
                     self._set("denied", reply.get("error") or reply.get("text") or "sign-in refused")
@@ -65,6 +72,9 @@ class Rcon:
                         if isinstance(msg := json.loads(raw), dict):
                             self._dispatch(msg)
                     detail = "connection closed"
+            except ConsoleFull as e:
+                detail = str(e)
+                delay = max(delay, 15)
             except (OSError, TimeoutError, WebSocketException, ValueError) as e:
                 detail = str(e) or type(e).__name__
             except Exception as e:  # a fault handling a message: drop the link and come back, rather than die online

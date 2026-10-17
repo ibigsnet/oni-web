@@ -284,6 +284,7 @@ const EXPLAIN: [string[], string, string][] = [
   [["invalid http", "did not receive a valid http", "rejected websocket", "invalid status", "speak rcon", "http error", "handshake not finished", "missing, duplicated or incorrect header", "protocol error"], "NOT AN RCON PORT", "Something answered, but it isn't RCON. RCON listens on the game port."],
   [["isn't a valid uri", "invalid uri", "scheme isn't", "url error", "unsupported url scheme", "relative url"], "BAD LINK", "That isn't a valid ws:// or wss:// link."],
   [["connection closed", "connection lost", "no close frame", "connection reset", "broken pipe", "already closed"], "CONNECTION DROPPED", "The connection dropped."],
+  [["console full", "tools connected"], "CONSOLE FULL", "The server already has 4 tools connected (its limit). This keeps trying and gets in as soon as one leaves."],
 ];
 
 /** Why a station isn't online, for someone who has never seen a socket error. */
