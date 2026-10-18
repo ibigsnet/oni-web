@@ -3,21 +3,19 @@
 Upstream: https://github.com/darkxb23r/oni-web (GPL-3.0; keep LICENSE and NOTICE; we run it as a hosted
 service per customer and publish our changes here). Base commit 1c3ab31.
 
-## How IBIGS deploys it (pilot live on a customer VPS, 2026-10-16)
+## How IBIGS deploys it
 
 One instance per customer, inside the customer's own VM — never shared between customers:
 
 - Container `ibigs/oni-web:<sha>` (host network, read-only, no-new-privileges, 1 GiB cap), listening on the
-  VM's own 10.60 address, port 8470.
-- `ONI_WEB_TOKEN` (48 hex, generated per VM, lives in `/srv/ibigs/oni-web/token`), `ONI_WEB_SECURE_COOKIE=true`,
+  VM's private address, port 8470.
+- `ONI_WEB_TOKEN` (48 hex, generated per VM), `ONI_WEB_SECURE_COOKIE=true`,
   `ONI_WEB_ORIGINS=https://<name>.console.ibigs.us`.
 - Profiles are seeded once from the stack's own `.env`/`dedicated.toml` via `ONI_RCON_CONFIG` (name, 127.0.0.1,
   the [[server]] port, the RCON password). No `health_cmd`/`ping_log`/`restart_cmd`: nothing in the vault can
   execute anything.
-- TLS terminates at the node's NAT gateway (Caddy, HTTP-01, ports 80/443 opened in its nftables); the plain-HTTP
-  hop is only the private 10.60 segment. DNS `<name>.console.ibigs.us` -> the gateway's public IP (Cloudflare).
-- Setup script: workstation `oni-web-setup.sh` (to be folded into the template as an
-  addon + the hosting panel button).
+- TLS terminates at the host's gateway; the plain-HTTP hop stays on the private network between the gateway and
+  the VM.
 
 ## Changes from upstream
 
@@ -36,11 +34,9 @@ wrapper on the VM are NOT here yet; the container cannot exec the wrapper. Plan:
 - Superintendent status words for long operations (ibigs.24)
 
 ## One-click sign-in (2026-10-16)
-the hosting panel `/ibigs/oni-web.php` checks the customer owns the server, then returns
+The hosting panel checks that the signed-in customer owns the server, then returns
 `https://<name>.console.ibigs.us/sso?ticket=…` — base64url(JSON `{sid, exp, n}`) + `.` + hex HMAC-SHA256 under a
-per-server secret (`SSO_SECRET_<id>` in `/etc/ibigs/oni-web.env` on the hosting panel = `ONI_WEB_SSO_SECRET` in the VM,
-`/srv/ibigs/oni-web/sso.secret`). The console accepts a ticket once, only for its own `ONI_WEB_SSO_SERVER`, and only
-within 2 minutes, then sets the normal 8 h session cookie. No secret configured → plain URL, token login as before.
-Operator scripts (in ~/tools/oni-web-mirror): `oni-web-setup.sh <name> <server id>` (in the VM, builds this fork
-from `/root/oni-web-<sha>.tgz`), `ibigs-oni-web-register.sh <node-b host> <vmid> <server id>` (makes/rotates the secret).
-Fallback for owners on the VM: `oni web-token` prints the console address and token.
+per-server secret shared only by the panel and that VM (`ONI_WEB_SSO_SECRET`). The console accepts a ticket once,
+only for its own `ONI_WEB_SSO_SERVER`, and only within 2 minutes, then sets the normal 8 h session cookie. No secret
+configured → plain URL, token login as before. Fallback for owners on the VM: `oni web-token` prints the console
+address and token.

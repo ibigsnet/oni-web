@@ -215,9 +215,9 @@ def create_app(settings: Settings | None = None):
                             secure=settings.secure_cookie, samesite="strict", path="/")
         return response
 
-    # IBIGS 2026-10-16: one-click sign-in from the hosting panel. the hosting panel checks that the signed-in customer owns
+    # IBIGS 2026-10-16: one-click sign-in from the hosting panel. The panel checks that the signed-in customer owns
     # this server, then sends the browser here with a ticket it signed: base64url(JSON {sid, exp, n}) "." hex
-    # HMAC-SHA256 under ONI_WEB_SSO_SECRET (shared only by the hosting panel and this server). The ticket must name this
+    # HMAC-SHA256 under ONI_WEB_SSO_SECRET (shared only by the panel and this server). The ticket must name this
     # server (ONI_WEB_SSO_SERVER), expire within two minutes and be unused; it then opens the same session a
     # token login does. The answer is a page that moves on by itself: a same-site navigation, so the SameSite=Strict
     # session cookie is sent (a redirect inside the panel's cross-site click would drop it).
