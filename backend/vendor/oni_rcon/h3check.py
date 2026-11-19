@@ -97,7 +97,26 @@ def _json(data: bytes, limit: int, what: str) -> dict:
 
 
 FORGE_GAME_KEYS = {"version", "name", "author", "base_map", "hosting", "map", "mode", "rules", "options", "world",
-                   "packed_game", "script"}
+                   "packed_game", "script",
+                   # 2026-11-19 preset fields: the game's Preset (forge.rs) since 0.10.4 also has these
+                   "weapons", "packed_map", "description", "campaign", "odst"}
+WEAPON_CHOICE_KEYS = {"source", "donor", "name", "label", "pool"}
+
+
+def _weapons(w) -> None:
+    """`weapons`: starting weapons by trait key -> {source, donor, name, label, pool}; names are tag paths."""
+    if not isinstance(w, dict) or len(w) > 64:
+        raise Rejected("its starting weapons aren't Reclaimer's weapon choices")
+    for key, choice in w.items():
+        if not isinstance(key, str) or len(key) > 100 or not isinstance(choice, dict) or set(choice) - WEAPON_CHOICE_KEYS:
+            raise Rejected("its starting weapons aren't Reclaimer's weapon choices")
+        for pooled in [choice] + list(choice.get("pool") or []):
+            if not isinstance(pooled, dict):
+                raise Rejected("its starting weapons aren't Reclaimer's weapon choices")
+            for k in ("name", "donor", "label"):
+                v = pooled.get(k, "")
+                if not isinstance(v, str) or len(v) > 300 or ".." in v.replace("\\", "/").split("/"):
+                    raise Rejected(f"a starting weapon has an unsafe {k}")
 PLAYLIST_KEYS = {"version", "name", "vote_seconds", "games"}
 PLAYLIST_GAME_KEYS = {"map", "game", "world", "options", "weight", "name", "rules"}
 
@@ -141,23 +160,29 @@ def _forge_json(doc: dict) -> str:
             what = _sniff_dangerous(raw)
             raise Rejected(f"its embedded map data is {what}" if what else
                            f"its map data isn't a Halo 3 map variant ({len(raw)} bytes, not {H3_MAP_VARIANT})")
-    pg = doc.get("packed_game")
-    if pg is not None:
-        if isinstance(pg, dict):
-            if set(pg) - {"data", "format", "version", "size"}:
-                raise Rejected("its packed game has fields Reclaimer doesn't use")
-            pg = pg.get("data")
-        if not isinstance(pg, str):
-            raise Rejected("its packed game isn't encoded game data")
-        try:
-            raw = base64.b64decode(pg, validate=True)
-        except (binascii.Error, ValueError):
-            raise Rejected("its packed game isn't valid base64") from None
-        if not raw.startswith(b"_blf") or len(raw) > FORGE_MAX:
-            raise Rejected("its packed game isn't a Halo 3 game variant (_blf)")
+    if "weapons" in doc:
+        _weapons(doc["weapons"])
+    for _key in ("packed_game", "packed_map"):
+        _packed(doc.get(_key), "game" if _key == "packed_game" else "map")
     if "script" in doc and not isinstance(doc["script"], dict):
         raise Rejected("its game script isn't Reclaimer's script format")
     return "forge game type" if ("packed_game" in doc or "script" in doc or "options" in doc) else "forge map"
+
+
+def _packed(pg, what: str) -> None:
+    if pg is not None:
+        if isinstance(pg, dict):
+            if set(pg) - {"data", "format", "version", "size"}:
+                raise Rejected(f"its packed {what} has fields Reclaimer doesn't use")
+            pg = pg.get("data")
+        if not isinstance(pg, str):
+            raise Rejected(f"its packed {what} isn't encoded game data")
+        try:
+            raw = base64.b64decode(pg, validate=True)
+        except (binascii.Error, ValueError):
+            raise Rejected(f"its packed {what} isn't valid base64") from None
+        if not raw.startswith(b"_blf") or len(raw) > FORGE_MAX:
+            raise Rejected(f"its packed {what} isn't a Halo 3 {what} variant (_blf)")
 
 
 IMAGE_MAGIC = (b"\x89PNG\r\n\x1a\n", b"\xff\xd8\xff", b"GIF8", b"BM", b"DDS ")
