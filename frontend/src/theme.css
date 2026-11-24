@@ -177,3 +177,45 @@ pre.json .k { color: var(--cyan); } pre.json .s { color: var(--green); } pre.jso
 .lbl { display: block; color: var(--cyan); margin: 10px 0 2px; }
 .forge-previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
 .forge-previews img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--faint, #222); background: #0b0f14; }
+
+/* F10 settings: grouped cards, what a setting means on the left, its control on the right */
+.settings .setbar { display: flex; gap: 10px; align-items: center; flex: none; }
+.settings .setbar #settings-q { max-width: 420px; }
+.settings .setplays { flex: 1; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.settings .setsaid { flex: none; padding: 2px 10px; border-left: 3px solid var(--green); background: var(--panel); white-space: pre-wrap; }
+.settings .setsaid.bad { border-left-color: var(--red); color: var(--white); }
+.settings .setgroups { overflow-y: auto; display: flex; flex-direction: column; gap: 18px; padding: 12px 4px 12px 0; }
+.settings .setcard { flex: none; }
+.settings .setcard > .pbody { overflow: visible; }
+.setrow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 420px); gap: 6px 24px; padding: 8px 4px; border-bottom: 1px solid var(--panel-2); align-items: start; }
+.setrow:last-of-type { border-bottom: none; }
+.setrow.changed { background: color-mix(in srgb, var(--amber) 7%, transparent); }
+.setrow.disabled { opacity: .55; }
+.setlabel { color: var(--white); }
+.settag { color: var(--dim); margin-left: 10px; font-size: .85em; }
+.setdesc { color: var(--grey); white-space: normal; }
+.setsource { color: var(--dim); font-size: .9em; }
+.setapplies { color: var(--amber); }
+.setcontrol { display: flex; flex-direction: column; gap: 4px; align-items: stretch; min-width: 0; }
+.setcontrol > .toggle { align-self: flex-start; }
+.setactions { display: flex; gap: 8px; justify-content: flex-end; }
+.setactions:empty { display: none; }
+.setnum, .setsecret, .setadd { display: flex; gap: 8px; align-items: center; }
+.setnum small, .setsecret small { color: var(--dim); white-space: nowrap; }
+.setnum .input { max-width: 140px; }
+.setadd .btn, .setsecret .btn { flex: none; overflow: visible; }
+.setlist { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+.setlist .setadd { flex: 1 1 100%; }
+.chip { display: inline-flex; gap: 4px; align-items: center; background: var(--panel-2); padding: 0 6px; border-radius: 3px; max-width: 100%; overflow-wrap: anywhere; user-select: text; }
+.chip.odd { background: color-mix(in srgb, var(--warn) 30%, transparent); }
+.setwarn { flex: 1 1 100%; color: var(--warn); white-space: normal; }
+.chip.inherited { background: none; border: 1px dashed var(--panel-2); color: var(--dim); }
+.chip button { background: none; border: none; color: var(--dim); cursor: pointer; padding: 0 2px; }
+.chip button:hover, .chip button:focus-visible { color: var(--red); outline: none; }
+.toggle { min-width: 64px; height: var(--row); border: 1px solid var(--panel-2); border-radius: 10px; background: var(--surface); color: var(--dim); cursor: pointer; }
+.toggle.on { background: var(--green); border-color: var(--green); color: var(--ink); }
+.toggle:focus-visible { outline: 1px solid var(--cyan); }
+.setmore { margin-top: 6px; background: none; border: none; color: var(--cyan); cursor: pointer; padding: 2px 4px; text-align: left; }
+.setmore:hover, .setmore:focus-visible { color: var(--white); outline: none; }
+.setempty { padding: 12px 16px; color: var(--grey); white-space: pre-wrap; }
+@media (max-width: 1100px) { .setrow { grid-template-columns: minmax(0, 1fr); } }

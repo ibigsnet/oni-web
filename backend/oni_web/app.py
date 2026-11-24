@@ -630,7 +630,7 @@ def create_app(settings: Settings | None = None):
                 raise ValueError("Demo stations are not saved profiles")
             await hub.delete_profile(hub.profile_ids[a["index"]])
             return None
-        if name in ("playlists", "playlist_library", "playlist_read", "save_playlist", "save_game_type", "server_setting", "restart_server"):
+        if name in ("playlists", "playlist_library", "playlist_read", "save_playlist", "save_game_type", "server_setting", "server_settings", "restart_server"):
             from .operations import dispatch as operations
             return await operations(hub, name, a)
         if name == "log_error":

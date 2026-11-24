@@ -19,6 +19,7 @@ import tomlkit
 
 from oni_rcon import install
 from oni_rcon.health import run
+from . import server_settings
 from .forge_service import NoRedirect
 from .hub import Budget
 from .vault import private_write
@@ -207,41 +208,43 @@ async def dispatch(h, name, a):
             path = f"Game Modes/{slug(title)}.json"
             ok = await files.write("content/" + path, json.dumps(value, indent=2) + "\n", bool(a.get("replace")))
             return {"path": path, "exists": not ok}
+        if name == "server_settings":
+            # The settings page: the schema and this server's values (never the RCON password or ports).
+            return server_settings.read_settings(tomlkit.parse(await files.read("dedicated.toml")), server.port)
         if name == "server_setting":
-            key, value = a["key"], a["value"]
-            if key == "max_players":
-                integer(value, 1, 63, "Player capacity")
-            elif key == "playlist":
-                install.safe_path(value)
-            elif key in ("admin_add", "admin_remove"):
-                if not isinstance(value, str) or not value.strip() or value.startswith("#") or any(ord(c) < 32 for c in value):
-                    raise ValueError("Use a player ID")
-            else:
-                raise ValueError("This setting cannot be changed from the console")
+            # One setting ({key, value}) or a page's worth ({changes: {key: value}}), all checked by the schema
+            # before anything is written; admin_add/admin_remove edit the server's own admins list.
+            changes = a.get("changes")
+            if changes is None:
+                key, value = a["key"], a["value"]
+                if key in ("admin_add", "admin_remove"):
+                    value = server_settings.check_legacy_admin(value)
+                changes = {key: value}
+            if not isinstance(changes, dict) or len(changes) > len(server_settings.SCHEMA):
+                raise ValueError("Changes must be a table of settings")
             text = await files.read("dedicated.toml")
             doc = tomlkit.parse(text)
-            matches = [s for s in doc.get("server", []) if s.get("rcon_port", s.get("port")) == server.port and s.get("enabled", True)]
-            if len(matches) != 1:
-                raise ValueError("Cannot identify exactly one server by its RCON port")
-            selected = matches[0]
-            if key.startswith("admin_"):
-                admins = list(selected.get("admins", []))
-                value = value.strip()
+            if set(changes) & {"admin_add", "admin_remove"}:
+                if len(changes) != 1:
+                    raise ValueError("Add or remove one admin at a time")
+                (key, value), = changes.items()
+                selected = server_settings.server_entry(doc, server.port)
+                admins = list(server_settings.plain(selected.get("admins", [])))
                 if (value in admins) == (key == "admin_add"):
                     raise ValueError("Admin is already present" if key == "admin_add" else "Admin is not present")
                 selected["admins"] = admins + [value] if key == "admin_add" else [v for v in admins if v != value]
             else:
-                if key == "playlist":
-                    for k in ("map", "game", "base_map", "variant", "campaign"):
-                        selected.pop(k, None)
-                selected[key] = value
+                server_settings.apply_changes(doc, server.port, changes)
+            out = tomlkit.dumps(doc)
+            tomlkit.parse(out)  # what is written must read back
             # Keep a rollback copy of the exact previous text on the same host.
             # Backup remains in the configured folder and contains secrets, so use private permissions.
             if isinstance(files.target, install.LocalTarget):
                 p = files.local("dedicated.toml")
                 await asyncio.to_thread(private_write, p.with_suffix(".toml.bak"), text.encode())
-            await files.write("dedicated.toml", tomlkit.dumps(doc), True)
-            return None
+            await files.write("dedicated.toml", out, True)
+            return {"applies": sorted({server_settings.BY_KEY[k]["applies"] for k in changes if k in server_settings.BY_KEY}),
+                    "warnings": server_settings.id_warnings(changes)}
     raise ValueError("Unknown file operation")
 
 

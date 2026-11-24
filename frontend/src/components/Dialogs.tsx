@@ -214,6 +214,11 @@ const GUIDE: [string, [string, string][]][] = [
     ["Alerts", "A new crash, or memory falling under the limit, flashes a banner over every tab (click it away), goes in the F2 feed and plays the Superintendent chime."],
     ["Turning it on", "Set health_cmd in the config: this tab says how when it's off. Ctrl+R reads everything now."],
   ]],
+  ["F10  SETTINGS  ·  the server's dedicated.toml", [
+    ["Cards", "Every setting of the selected server in groups, what it does in plain words on the left and its control on the right. Each says where its value comes from: this server, the file's defaults, every server, or the game's own default. USE DEFAULT removes this server's own value."],
+    ["Saving", "Changed rows say when they apply: live, from the next game, or after the server restarts once it's empty. SAVE checks them all again on the server, keeps a backup of the old file and writes them at once; a refused change writes nothing and says why. DISCARD forgets them."],
+    ["Search", "The box finds a setting by its name, its words or its key, typos allowed (/ jumps to it). Advanced settings stay folded until you open them or search."],
+  ]],
   ["SAFETY", [
     ["Addresses", "Player IPs are hidden. Press x to show them, and again to hide them before you stream."],
     ["Confirming", "Risky actions ask first, and the safe choice (ABORT) is already selected."],

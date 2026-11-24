@@ -2,7 +2,7 @@
 import { invoke } from "@web/bridge";
 import { getCurrentWindow } from "@web/bridge";
 import { useCallback, useEffect, useState } from "react";
-import { bump, oni, TABS, useV, type Tab } from "./engine";
+import { bump, oni, TABS, TAB_KEY, useV, type Tab } from "./engine";
 import { OPS, BAN_OPS, TAB_TIPS, askPassword, automation, bl, broadcast, goto, op, player } from "./actions";
 import { Sidebar } from "./components/Sidebar";
 import { Banner, Footer, Masthead, Toasts } from "./components/Chrome";
@@ -11,6 +11,7 @@ import { ConsoleTab, Intercepts } from "./components/Feeds";
 import { Blacklist, Operations, blSel } from "./components/Ops";
 import { Forge, fg, forgeAction, forgeLoad } from "./components/Forge";
 import { Health } from "./components/Health";
+import { Settings } from "./components/Settings";
 import { Dialogs } from "./components/Dialogs";
 import { Archive, Boot } from "./components/Boot";
 import { Setup } from "./components/Setup";
@@ -18,8 +19,8 @@ import { useSize } from "./components/ui";
 import { targetOf, pick, type Dict } from "./lib/util";
 import type { Opened } from "./components/Findings";
 
-const NAMES: Record<Tab, string> = { assets: "ASSETS", intercepts: "INTERCEPTS", operations: "OPERATIONS", blacklist: "BLACKLIST", console: "CONSOLE", forge: "FORGE", health: "HEALTH" };
-const FOCUS: Record<Tab, string> = { assets: "players", intercepts: "feed", operations: "op-load", blacklist: "bans", console: "cmd", forge: "listings", health: "crashes" };
+const NAMES: Record<Tab, string> = { assets: "ASSETS", intercepts: "INTERCEPTS", operations: "OPERATIONS", blacklist: "BLACKLIST", console: "CONSOLE", forge: "FORGE", health: "HEALTH", settings: "SETTINGS" };
+const FOCUS: Record<Tab, string> = { assets: "players", intercepts: "feed", operations: "op-load", blacklist: "bans", console: "cmd", forge: "listings", health: "crashes", settings: "settings-q" };
 
 export function setTab(t: Tab) {
   oni.setTab(t);
@@ -63,6 +64,7 @@ function palette(onSetup: () => void) {
     ["Superintendent findings", "what it noticed in the last hour, with the evidence  (F8)", openFindings],
     ["Automation rules", "when something happens, do this: chat, Discord, votes, alerts  (F9)", automation],
     ["Find a player", "on any station, by name, tag, clan, team, ID or address  (Ctrl+F)", findPlayer],
+    ["Server settings", "every setting of the selected server, in plain words  (F10)", () => setTab("settings")],
     ...oni.stations.map((s, i) => [`Station ${i + 1}: ${s.label}`, s.where, () => oni.select(i)] as [string, string, () => void]),
     ...OPS.map(([o, label]) => [o === "broadcast" ? "Broadcast to stations" : `Ops: ${label.replace(/\b\w+/g, (w) => w[0] + w.slice(1).toLowerCase())}`,
       o === "broadcast" ? "say on this or every station" : `${o} on the selected station`, () => op(o)] as [string, string, () => void]),
@@ -111,6 +113,10 @@ function useKeys(onSetup: () => void) {
         e.preventDefault();
         return void automation();
       }
+      if (e.key === "F10") {
+        e.preventDefault();
+        return setTab("settings");
+      }
       const fn = /^F([1-7])$/.exec(e.key);
       if (fn) {
         e.preventDefault();
@@ -153,6 +159,7 @@ function useKeys(onSetup: () => void) {
         g: goto, x: () => oni.toggleRedact(), "?": () => oni.ask("help", {}),
         "/": () => {
           if (oni.tab === "forge") return document.getElementById("forge-q")?.focus();
+          if (oni.tab === "settings") return document.getElementById("settings-q")?.focus();
           if (oni.tab !== "intercepts") setTab("console");
           requestAnimationFrame(() => document.getElementById(oni.tab === "intercepts" ? "say" : "cmd")?.focus());
         },
@@ -184,8 +191,8 @@ function Console({ onSetup }: { onSetup: () => void }) {
         <Sidebar onSetup={onSetup} />
         <div className="tabs">
           <div className="tabbar" role="tablist" aria-label="Server operations">
-            {TABS.map((x, i) => (
-              <button key={x} role="tab" aria-selected={x === t} aria-controls={`pane-${x}`} className={x === t ? "on" : ""} onClick={() => setTab(x)} title={TAB_TIPS[x]}><span className="f">F{i + 1}</span>{NAMES[x]}</button>
+            {TABS.map((x) => (
+              <button key={x} role="tab" aria-selected={x === t} aria-controls={`pane-${x}`} className={x === t ? "on" : ""} onClick={() => setTab(x)} title={TAB_TIPS[x]}><span className="f">F{TAB_KEY(x)}</span>{NAMES[x]}</button>
             ))}
           </div>
           <div className="web-station-actions">
@@ -195,7 +202,7 @@ function Console({ onSetup }: { onSetup: () => void }) {
           </div>
           <div className="pane" key={t} id={`pane-${t}`} role="tabpanel" aria-label={NAMES[t]}>
             {t === "assets" ? <Assets /> : t === "intercepts" ? <Intercepts /> : t === "operations" ? <Operations /> : t === "blacklist" ? <Blacklist />
-              : t === "console" ? <ConsoleTab /> : t === "forge" ? <Forge /> : <Health />}
+              : t === "console" ? <ConsoleTab /> : t === "forge" ? <Forge /> : t === "settings" ? <Settings /> : <Health />}
           </div>
         </div>
       </div>
