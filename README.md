@@ -51,6 +51,7 @@ The existing ONI desktop console is adapted for the browser, including its dark 
 | Console / F5 | Arbitrary commands, up/down history, quoted arguments and upstream free-text parsing, raw events, structured replies, late replies, `@all` fan-out (four stations concurrently) |
 | Forge / F6 | Catalog/search/sorting/favourites, versions, compatibility, manifest-verified installs, update/withdrawal watch, acknowledgement; publishing and MINE use the desktop API endpoints |
 | Health / F7 | Original crash/OOM/memory/service parsing; desktop frame-rate calculations and charts; requires trusted host configuration |
+| Settings / F10 | The server's `dedicated.toml` settings as grouped cards in plain words, with where each value comes from, when a change applies, fuzzy search, SAVE/DISCARD and server-side checks; requires a configured content directory |
 | Findings / F8 | Original chat/vote/kill observations and evidence review; findings do not automatically moderate players |
 | Automation / F9 | Original rules, roles, templates, test mode, waits and Discord actions; one browser owns a renewable lease so tabs do not duplicate actions |
 | Other | Command palette, cross-fleet player search, operator attribution, Superintendent, optional boot/archive art, local rounds JSONL |

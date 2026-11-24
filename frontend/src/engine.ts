@@ -21,8 +21,10 @@ export const FLEET = 12;
 const FANOUT = 4;
 const SLOW_POLL = 15_000;
 export const SPREE = 5;
-export type Tab = "assets" | "intercepts" | "operations" | "blacklist" | "console" | "forge" | "health";
-export const TABS: Tab[] = ["assets", "intercepts", "operations", "blacklist", "console", "forge", "health"];
+export type Tab = "assets" | "intercepts" | "operations" | "blacklist" | "console" | "forge" | "health" | "settings";
+export const TABS: Tab[] = ["assets", "intercepts", "operations", "blacklist", "console", "forge", "health", "settings"];
+/** The function key of each tab: F1-F7 in order; F8 and F9 open findings and automation, so Settings is F10. */
+export const TAB_KEY = (t: Tab) => (t === "settings" ? 10 : TABS.indexOf(t) + 1);
 
 // --- what the window repaints, by counter ----------------------------------------------------------------------
 type Counters = { cards: number; roster: number; ops: number; bans: number; feed: number; log: number; forge: number;

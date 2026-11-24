@@ -88,6 +88,7 @@ export const TAB_TIPS: Record<string, string> = {
   console: "Type server commands directly. For when a button doesn't cover it.",
   forge: "The ReclaimerForge catalog: community maps, gametypes and playlists for your servers.",
   health: "Crashes read from each server's log, the host's memory, and whether the workaround service runs.",
+  settings: "Every setting of the selected server, in plain words: who can join, the rules, admins, votes, Forge, films, networking.",
 };
 
 const opt = (v: string) => (v ? [v] : []);
@@ -319,7 +320,7 @@ export async function op(name: string) {
     return location.reload(); // the console is rebuilt from the config, or the setup screen opens when none are left
   }
   if (name === "capacity") {
-    const f = await oni.form("PLAYER CAPACITY", [["n", "Most players at once (1 to 63)", String(s.max_players ?? "")]], { verb: "SAVE", required: ["n"],
+    const f = await oni.form("PLAYER CAPACITY", [["n", "Most players at once (1 to 128)", String(s.max_players ?? "")]], { verb: "SAVE", required: ["n"],
       note: "Saved in the server's dedicated.toml: it takes effect when the server restarts." });
     if (f) return saveSetting(st, "max_players", Number(f.n), "CAPACITY", `${f.n} players`);
     return;

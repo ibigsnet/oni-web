@@ -1,7 +1,7 @@
 // The frame around the tabs: the masthead with the condition, the alert banner, the key hints along the bottom, and
 // the toasts.
 import { AMBER, CYAN, DIM, INK, RED, WHITE, blend } from "../art/palette";
-import { oni, useV } from "../engine";
+import { oni, useV, type Tab } from "../engine";
 import { hms, num } from "../lib/util";
 
 export function Masthead({ width }: { width: number }) {
@@ -37,18 +37,18 @@ export function Banner() {
   );
 }
 
-const KEYS: Record<string, [string, string][]> = {
+const KEYS: Record<Tab, [string, string][]> = {
   assets: [["t", "Tell"], ["k", "Kick"], ["b", "Ban"], ["m", "Mute"], ["j", "Team"], ["v", "VPN allow"], ["y", "Copy ID"]],
   blacklist: [["n", "New ban"], ["u", "Unban"], ["a", "VPN allow"], ["r", "VPN revoke"]],
   forge: [["i", "Install"], ["l", "Load now"], ["a", "Ack"], ["s", "Sort"], ["w", "Window"], ["n", "More"], ["/", "Search"], ["k", "Key"], ["y", "Copy ID"]],
   intercepts: [["/", "Type"], ["End", "Follow"]],
   console: [["/", "Type"], ["↑↓", "History"]],
-  operations: [], health: [],
+  operations: [], health: [], settings: [["/", "Search"]],
 };
 
 export function Footer() {
   useV((s) => s.ui);
-  const keys: [string, string][] = [...KEYS[oni.tab], ["F1–F7", "Tabs"], ["g", "Go to"], ["^B", "Broadcast"], ["^R", "Refresh"], ["x", "Redact"], ["?", "Help"]];
+  const keys: [string, string][] = [...KEYS[oni.tab], ["F1–F7", "Tabs"], ["F10", "Settings"], ["g", "Go to"], ["^B", "Broadcast"], ["^R", "Refresh"], ["x", "Redact"], ["?", "Help"]];
   return (
     <div className="footer">
       {keys.map(([k, v]) => <span key={k + v}><span className="k">{k}</span>{v}</span>)}

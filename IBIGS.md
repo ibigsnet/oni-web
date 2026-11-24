@@ -40,3 +40,15 @@ per-server secret shared only by the panel and that VM (`ONI_WEB_SSO_SECRET`). T
 only for its own `ONI_WEB_SSO_SERVER`, and only within 2 minutes, then sets the normal 8 h session cookie. No secret
 configured → plain URL, token login as before. Fallback for owners on the VM: `oni web-token` prints the console
 address and token.
+
+## Server settings page (F10)
+Every customer-facing `dedicated.toml` setting of the selected server, grouped as cards with a plain-words meaning,
+its control, where its value comes from (this server, `[defaults]`, every server, the game's default) and when a
+change applies (live, next game, after the server restarts once empty). One schema is the source of truth:
+`backend/oni_web/server_settings.py`, checked against Project Reclaimer 0.10.9's `docs/servers.md` and its config
+parser. Reads go through `server_settings` (the join password is never sent back: only whether one is set); writes go
+through `server_setting` with `{changes: {key: value}}` (null removes the server's own value so the shared one
+applies), all checked before anything is written, into that server's `[[server]]` entry only (`stats_server`, the
+one top-level key, is marked as shared by every server), with the private `.bak` copy kept as before. The RCON
+password and port, the game port, addresses, folders, `[master]` and `upnp` are not in the schema and are refused by
+name. The station needs its `content_dir` (as the other file operations do).
