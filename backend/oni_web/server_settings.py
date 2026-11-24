@@ -56,7 +56,11 @@ MAX_WELCOME_LINES = 5      # config.rs MAX_WELCOME_LINES
 MAX_KICK_BLOCKS = 8        # config.rs MAX_KICK_BLOCKS
 MAX_KICK_BLOCK = 7 * 24 * 3600
 MAX_IDS = 256              # a panel limit: a list longer than this is a file job
-MAX_TEXT = 200             # a panel limit for one welcome line or a mod's name
+MAX_TEXT = 200             # a panel limit for a map, mission or mod name
+MAX_WELCOME_LINE = 300     # game devs: chat cuts a line at 360; welcome lines are kept to 300
+MAX_BAN_MINUTES = 10080    # roles.rs: moderator_ban_minutes is 1 to seven days; else the game refuses the file
+MAX_SHARE_RATE = 10000     # a page range; the game takes any u32 (0: no limit, unset: 20 Mbit/s)
+PLAYER_ID = re.compile(r"[0-9a-fA-F]{64}")  # a node's network key or a community ID (SHA-256 hex), profile.rs
 
 PLAYS_KEYS = ("playlist", "playlists", "variant", "map", "game", "base_map", "campaign", "odst", "reach")
 VOTE_KINDS = ("kick", "endround", "endgame", "shuffle")
@@ -95,7 +99,7 @@ SCHEMA = [
        "bool", LIVE, default=False),
     _s("welcome", "general", "Welcome message",
        "Lines every player reads in chat as they join, up to 5. {name} becomes the player's name and {server} the "
-       "server's. Needs text chat on.", "lines", LIVE, default=[], max_items=MAX_WELCOME_LINES, max_len=MAX_TEXT),
+       "server's. Needs text chat on.", "lines", LIVE, default=[], max_items=MAX_WELCOME_LINES, max_len=MAX_WELCOME_LINE),
     _s("text_chat", "general", "Text chat",
        "Players may type to each other in the lobby and in games.", "bool", LIVE, default=True),
     _s("voice", "general", "Voice chat",
@@ -123,7 +127,8 @@ SCHEMA = [
     _s("vote_kick_immune", "admins", "Can't be vote-kicked",
        "Player IDs no players' vote can kick, without giving them a role.", "ids", LIVE, scope="additive", default=[]),
     _s("moderator_ban_minutes", "admins", "Longest Mod ban",
-       "The longest timed ban a Moderator may give, in minutes.", "int", LIVE, default=60, min=1, max=525600,
+       "The longest timed ban a Moderator may give, in minutes, up to 10,080 (seven days).", "int", LIVE,
+       default=60, min=1, max=MAX_BAN_MINUTES,
        unit="min", advanced=True),
 
     # --- Gameplay -----------------------------------------------------------------------------------------------
@@ -185,7 +190,8 @@ SCHEMA = [
        "int", LIVE, default=33, min=1, max=100, unit="%"),
     _s("coop_network", "campaign", "Co-op networking",
        "How co-op missions are played over the network. Lockstep is Halo 3's own at 60 ticks; lockstep at 30 ticks "
-       "is the Xbox 360's pace; host-authoritative is experimental.", "enum", SERVER_RESTART, default="lockstep",
+       "is the Xbox 360's pace; host-authoritative is experimental. A change takes effect only when the server next "
+       "starts.", "enum", SERVER_RESTART, default="lockstep",
        choices=[["lockstep", "Lockstep (60 ticks)"], ["lockstep30", "Lockstep (30 ticks, as the Xbox 360)"],
                 ["host", "Host-authoritative (experimental)"]], advanced=True),
 
@@ -194,9 +200,9 @@ SCHEMA = [
        "Players who lack the server's mods download them from the server as they join.", "bool", LIVE,
        default=False),
     _s("share_rate", "forge", "Mod download speed",
-       "The most all mod downloads from this server send together, in megabits a second. 0 means no limit.",
-       "int", LIVE, default=None, nullable=True, null_label="The game's default", min=0, max=100000,
-       unit="Mbit/s", advanced=True),
+       "The most all mod downloads from this server send together, in megabits a second; 0 means no limit. It "
+       "only matters with mod sharing on.", "int", LIVE, default=20, min=0, max=MAX_SHARE_RATE, unit="Mbit/s",
+       advanced=True),
     _s("forge_edit", "forge", "Who edits in Forge",
        "As the game type says follows each Forge game type's own editing rule, as Halo 3 did. By role lets only "
        "players whose role allows Forge editing build.", "enum", LIVE, default="game_type",
@@ -216,6 +222,12 @@ SCHEMA = [
     _s("reach_objects", "forge", "Reach objects in Forge",
        "Adds Halo: Reach's objects to Forge on Halo 3's and ODST's maps. Players then need Reach to join.", "bool",
        NEXT_GAME, default=False),
+    _s("halo1_objects", "forge", "Halo: CE objects in Forge",
+       "Adds Halo: Combat Evolved's objects to Forge. Players then need Halo: CE to join; if the server's game "
+       "folder lacks it, Forge simply offers none of its objects.", "bool", NEXT_GAME, default=False, advanced=True),
+    _s("halo2_objects", "forge", "Halo 2 objects in Forge",
+       "Adds Halo 2's objects to Forge. Players then need Halo 2 to join; if the server's game folder lacks it, "
+       "Forge simply offers none of its objects.", "bool", NEXT_GAME, default=False, advanced=True),
     _s("halo3_objects", "forge", "Halo 3 objects in Forge",
        "Halo 3's objects in Forge on ODST's maps. Automatic follows what each map offers.", "bool", NEXT_GAME,
        default=None, nullable=True, null_label="Automatic (as each map offers)", advanced=True),
@@ -443,12 +455,38 @@ def _printable(text):
 
 
 def check_id(value):
+    """A player ID as written: trimmed, one line of text. The game doesn't check them; at join it compares each, in
+    any case, with the player's 64-hex network key or community ID, so anything else is kept but never matches
+    (looks_like_id says which, and the page warns)."""
     if not isinstance(value, str):
         raise ValueError("A player ID is text")
     value = value.strip()
-    if not value or value.startswith("#") or len(value) > 128 or not _printable(value) or re.search(r"\s", value):
-        raise ValueError(f"\"{value[:40]}\" is not a player ID (copy it from the player's profile)")
+    if not value or len(value) > 128 or not _printable(value):
+        raise ValueError(f"\"{value[:40]}\" can't be a player ID (copy it from the player's profile)")
     return value
+
+
+def check_legacy_admin(value):
+    """The console's one-admin form (ADMIN on F1/F4) as it always was: a slot such as #3 is refused."""
+    value = check_id(value)
+    if value.startswith("#") or re.search(r"\s", value):
+        raise ValueError("Use a player ID")
+    return value
+
+
+def looks_like_id(value):
+    return bool(PLAYER_ID.fullmatch(value.strip()))
+
+
+def id_warnings(changes):
+    """Plain-words warnings for player IDs that will never match anyone (written anyway, as the game takes them)."""
+    out = []
+    for key, value in changes.items():
+        entry = BY_KEY.get(key)
+        if entry and entry["type"] == "ids" and isinstance(value, list):
+            out += [f"{entry['label']}: \"{v.strip()[:40]}\" doesn't look like a player ID and will never match anyone"
+                    for v in value if isinstance(v, str) and v.strip() and not looks_like_id(v)]
+    return out
 
 
 def duration_seconds(text):
@@ -514,14 +552,17 @@ def check_value(entry, value):
                 out.append(v)
         return out
     if typ in ("lines", "list"):
-        if not isinstance(value, list) or len(value) > entry["max_items"]:
+        if not isinstance(value, list) or len(value) > 4 * entry["max_items"]:
             raise ValueError(f"{label} takes up to {entry['max_items']} lines")
         out = []
         for v in value:
             if not isinstance(v, str) or not _printable(v) or len(v.strip()) > entry["max_len"]:
                 raise ValueError(f"{label}: each line is one line of up to {entry['max_len']} characters")
             if v.strip():
-                out.append(v.strip())
+                out.append(v.strip())  # empty lines are dropped, as the game drops them
+        if len(out) > entry["max_items"]:
+            # The game would silently drop the extra ones, so they are refused here.
+            raise ValueError(f"{label} takes up to {entry['max_items']} lines")
         return out
     if typ == "durations":
         if not isinstance(value, list) or len(value) > MAX_KICK_BLOCKS:

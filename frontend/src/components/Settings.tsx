@@ -6,7 +6,7 @@ import { invoke } from "@web/bridge";
 import { oni, useV } from "../engine";
 import * as fuzzy from "../lib/fuzzy";
 import type { Dict } from "../lib/util";
-import { filterEntries, isNaNValue, same, type Entry, type SettingsData, type Value } from "../lib/settings";
+import { filterEntries, isNaNValue, looksLikeId, same, type Entry, type SettingsData, type Value } from "../lib/settings";
 import { Btn, Panel } from "./ui";
 
 export const APPLIES: Record<string, string> = {
@@ -49,18 +49,21 @@ function ListBox({ e, value, inherited, onChange }: { e: Entry; value: string[];
     if (next.length !== value.length) onChange(next);
     setText("");
   };
+  const odd = e.type === "ids" ? value.filter((v) => !looksLikeId(v)) : [];
   const hint = e.type === "ids" ? "paste a player ID" : e.type === "durations" ? "e.g. 10m, 2h, 1d" : e.type === "lines" ? "type a line" : "add one";
   return (
     <div className="setlist">
       {inherited?.map((v) => <span key={`i${v}`} className="chip inherited" title="Set for every server in the file">{v}</span>)}
       {value.map((v, i) => (
-        <span key={`${i}${v}`} className="chip">{v}<button aria-label={`Remove ${v}`} onClick={() => onChange(value.filter((_, j) => j !== i))}>×</button></span>
+        <span key={`${i}${v}`} className={`chip ${odd.includes(v) ? "odd" : ""}`} title={odd.includes(v) ? "Doesn't look like a player ID" : undefined}>{v}<button aria-label={`Remove ${v}`} onClick={() => onChange(value.filter((_, j) => j !== i))}>×</button></span>
       ))}
       <span className="setadd">
         <input className="input" value={text} placeholder={hint} aria-label={`Add to ${e.label}`} onChange={(ev) => setText(ev.target.value)}
           onKeyDown={(ev) => { if (ev.key === "Enter") { ev.preventDefault(); add(); } }} />
         <Btn label="ADD" onClick={add} disabled={!text.trim()} />
       </span>
+      {odd.length ? <div className="setwarn" role="status">⚠ {odd.map((v) => `"${v}"`).join(", ")} {odd.length > 1 ? "don't" : "doesn't"} look like a player ID
+        (64 letters and digits, from the player's profile) and will never match anyone. {odd.length > 1 ? "They are" : "It is"} saved anyway.</div> : null}
     </div>
   );
 }
@@ -169,9 +172,9 @@ export function Settings() {
     setBusy(true);
     setSaid(null);
     try {
-      const r = await invoke<{ applies: string[] }>("server_setting", { index, changes: draft });
+      const r = await invoke<{ applies: string[]; warnings?: string[] }>("server_setting", { index, changes: draft });
       const when = (r?.applies ?? []).map((a) => APPLIES[a]?.replace("applies: ", "")).filter(Boolean).join(", ");
-      setSaid({ ok: true, text: `Saved ${pending.length} setting${pending.length === 1 ? "" : "s"}. ${when ? `They apply ${when}.` : ""} With auto_reload on (the default) the server picks the file up by itself within seconds.` });
+      setSaid({ ok: true, text: `Saved ${pending.length} setting${pending.length === 1 ? "" : "s"}. ${when ? `They apply ${when}.` : ""} With auto_reload on (the default) the server picks the file up by itself within seconds.${r?.warnings?.length ? `\nWarning: ${r.warnings.join("; ")}.` : ""}` });
       setDraft({});
       await load();
     } catch (e) {

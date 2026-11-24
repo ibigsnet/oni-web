@@ -193,10 +193,24 @@ def test_what_a_server_plays_is_one_thing():
     ({"name": None}, "needs a value"),
     ({"name": "bad\nname"}, "one line"),
     ({"password": "p" * 129}, "128 bytes"),
-    ({"admins": ["ok-id", "has space"]}, "not a player ID"),
-    ({"admins": ["#comment"]}, "not a player ID"),
+    ({"admins": ["  "]}, "can't be a player ID"),
+    ({"admins": ["bad\tid"]}, "can't be a player ID"),
+    ({"admins": ["x" * 129]}, "can't be a player ID"),
     ({"admins": "one-id"}, "list"),
     ({"welcome": ["1", "2", "3", "4", "5", "6"]}, "up to 5"),
+    ({"welcome": ["w" * 301]}, "up to 300 characters"),
+    ({"moderator_ban_minutes": 0}, "from 1 to 10080"),
+    ({"moderator_ban_minutes": 10081}, "from 1 to 10080"),
+    ({"share_rate": 10001}, "from 0 to 10000"),
+    ({"share_rate": -1}, "from 0 to 10000"),
+    ({"forge_autosave_keep": 21}, "from 0 to 20"),
+    ({"forge_autosave_minutes": 1441}, "from 0 to 1440"),
+    ({"film_keep": 0}, "from 1 to"),
+    ({"film_max_mb": 0}, "from 1 to"),
+    ({"post_game_seconds": 301}, "from 0 to 300"),
+    ({"start_countdown_seconds": 61}, "from 0 to 60"),
+    ({"coop_network": "lockstep60"}, "must be one of"),
+    ({"halo1_objects": "on"}, "on or off"),
     ({"kick_blocks": ["30m", "10m"]}, "as long as the one before"),
     ({"kick_blocks": ["2w"]}, "a week at most"),
     ({"kick_blocks": ["10x"]}, "not a length"),
@@ -233,7 +247,7 @@ def test_operation_reads_writes_and_backs_up(tmp_path):
         assert value(read, "name")["value"] == "Second"
         assert "second-rcon-secret" not in json.dumps(read) and "join-secret-default" not in json.dumps(read)
         result = await dispatch(h, "server_setting", {"index": 0, "changes": {"friendly_fire": True, "network_model": "classic"}})
-        assert result == {"applies": ["next_game", "server_restart"]}
+        assert result == {"applies": ["next_game", "server_restart"], "warnings": []}
         assert (root / "dedicated.toml.bak").read_text(encoding="utf-8") == CONFIG
         written = tomlkit.parse((root / "dedicated.toml").read_text(encoding="utf-8"))
         assert second(written)["network_model"] == "classic"
@@ -261,4 +275,82 @@ def test_operation_refuses_a_server_it_cannot_identify(tmp_path):
             await dispatch(h, "server_settings", {"index": 0})
         with pytest.raises(ValueError, match="exactly one server"):
             await dispatch(h, "server_setting", {"index": 0, "changes": {"hidden": True}})
+    asyncio.run(scenario())
+
+
+# --- the limits the game devs confirmed (v0.10.9) ---------------------------------------------------------------
+
+HEX_ID = "0123456789abcdef" * 4
+
+
+@pytest.mark.parametrize("changes", [
+    {"moderator_ban_minutes": 1}, {"moderator_ban_minutes": 10080},
+    {"share_rate": 0}, {"share_rate": 10000},
+    {"forge_autosave_keep": 20}, {"forge_autosave_minutes": 0},
+    {"film_keep": 1}, {"film_max_mb": 1},
+    {"post_game_seconds": 0}, {"start_countdown_seconds": 0},
+    {"welcome": ["w" * 300]},
+    {"welcome": ["1", "", "2", "3", "  ", "4", "5"]},
+    {"coop_network": "lockstep"}, {"coop_network": "lockstep30"}, {"coop_network": "host"},
+    {"max_players": 128}, {"max_players": 1, "min_players": 1},
+])
+def test_the_edges_of_each_limit_are_accepted(changes):
+    d = doc()
+    ss.apply_changes(d, 49176, changes)
+    tomlkit.parse(tomlkit.dumps(d))
+
+
+def test_limits_and_defaults_match_the_game():
+    e = ss.BY_KEY
+    assert (e["share_rate"]["default"], e["share_rate"]["applies"]) == (20, ss.LIVE)
+    assert (e["moderator_ban_minutes"]["min"], e["moderator_ban_minutes"]["max"]) == (1, 10080)
+    assert (e["film_keep"]["default"], e["film_keep"]["applies"]) == (25, ss.NEXT_GAME)
+    assert (e["film_max_mb"]["default"], e["film_max_mb"]["applies"]) == (2048, ss.NEXT_GAME)
+    assert (e["post_game_seconds"]["default"], e["start_countdown_seconds"]["default"]) == (15, 3)
+    assert e["post_game_seconds"]["applies"] == e["start_countdown_seconds"]["applies"] == ss.LIVE
+    assert e["coop_network"]["applies"] == ss.SERVER_RESTART
+    assert [c[0] for c in e["coop_network"]["choices"]] == ["lockstep", "lockstep30", "host"]
+    for key in ("odst_objects", "reach_objects", "halo1_objects", "halo2_objects", "halo3_objects", "forge_primitives", "forge_mods"):
+        assert e[key]["applies"] == ss.NEXT_GAME
+    assert e["halo1_objects"]["default"] is False and e["halo1_objects"]["advanced"]
+    assert (e["max_players"]["min"], e["max_players"]["max"], e["max_players"]["default"]) == (1, 128, 16)
+
+
+def test_more_than_five_welcome_lines_are_refused_and_empty_ones_dropped():
+    d = doc()
+    ss.apply_changes(d, 49176, {"welcome": ["one", "", "two"]})
+    assert d["server"][0]["welcome"] == ["one", "two"]
+    with pytest.raises(ValueError, match="up to 5"):
+        ss.apply_changes(doc(), 49176, {"welcome": ["1", "2", "3", "4", "5", "6", ""]})
+
+
+def test_halo1_and_halo2_objects_are_written_for_the_server():
+    d = doc()
+    ss.apply_changes(d, 49176, {"halo1_objects": True, "halo2_objects": False})
+    first = tomlkit.parse(tomlkit.dumps(d))["server"][0]
+    assert (first["halo1_objects"], first["halo2_objects"]) == (True, False)
+
+
+def test_player_ids_are_trimmed_and_odd_ones_kept_with_a_warning():
+    assert ss.looks_like_id(HEX_ID) and ss.looks_like_id(HEX_ID.upper()) and ss.looks_like_id(f"  {HEX_ID} ")
+    assert not ss.looks_like_id(HEX_ID[:-1]) and not ss.looks_like_id("Player One") and not ss.looks_like_id("#3")
+    d = doc()
+    changes = {"admins": [f"  {HEX_ID}  ", "Player One"], "vips": ["#3"]}
+    ss.apply_changes(d, 49176, changes)
+    first = d["server"][0]
+    assert first["admins"] == [HEX_ID, "Player One"] and first["roles"]["vip"]["players"] == ["#3"]
+    warnings = ss.id_warnings(changes)
+    assert len(warnings) == 2 and "Player One" in warnings[0] and "will never match" in warnings[0]
+    assert ss.id_warnings({"admins": [HEX_ID], "moderators": [HEX_ID.upper()]}) == []
+
+
+def test_operation_saves_odd_ids_and_says_so(tmp_path):
+    async def scenario():
+        h, root = hub_with_server(tmp_path, 49176)
+        result = await dispatch(h, "server_setting", {"index": 0, "changes": {"moderators": [HEX_ID, "nickname"]}})
+        assert result["applies"] == ["live"] and len(result["warnings"]) == 1 and "nickname" in result["warnings"][0]
+        assert tomlkit.parse((root / "dedicated.toml").read_text())["server"][0]["moderators"] == [HEX_ID, "nickname"]
+        # The console's one-admin form still refuses a slot number, as before.
+        with pytest.raises(ValueError, match="Use a player ID"):
+            await dispatch(h, "server_setting", {"index": 0, "key": "admin_add", "value": "#3"})
     asyncio.run(scenario())

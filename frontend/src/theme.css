@@ -207,6 +207,8 @@ pre.json .k { color: var(--cyan); } pre.json .s { color: var(--green); } pre.jso
 .setlist { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
 .setlist .setadd { flex: 1 1 100%; }
 .chip { display: inline-flex; gap: 4px; align-items: center; background: var(--panel-2); padding: 0 6px; border-radius: 3px; max-width: 100%; overflow-wrap: anywhere; user-select: text; }
+.chip.odd { background: color-mix(in srgb, var(--warn) 30%, transparent); }
+.setwarn { flex: 1 1 100%; color: var(--warn); white-space: normal; }
 .chip.inherited { background: none; border: 1px dashed var(--panel-2); color: var(--dim); }
 .chip button { background: none; border: none; color: var(--dim); cursor: pointer; padding: 0 2px; }
 .chip button:hover, .chip button:focus-visible { color: var(--red); outline: none; }

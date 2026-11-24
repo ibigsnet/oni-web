@@ -218,7 +218,7 @@ async def dispatch(h, name, a):
             if changes is None:
                 key, value = a["key"], a["value"]
                 if key in ("admin_add", "admin_remove"):
-                    value = server_settings.check_id(value)
+                    value = server_settings.check_legacy_admin(value)
                 changes = {key: value}
             if not isinstance(changes, dict) or len(changes) > len(server_settings.SCHEMA):
                 raise ValueError("Changes must be a table of settings")
@@ -243,7 +243,8 @@ async def dispatch(h, name, a):
                 p = files.local("dedicated.toml")
                 await asyncio.to_thread(private_write, p.with_suffix(".toml.bak"), text.encode())
             await files.write("dedicated.toml", out, True)
-            return {"applies": sorted({server_settings.BY_KEY[k]["applies"] for k in changes if k in server_settings.BY_KEY})}
+            return {"applies": sorted({server_settings.BY_KEY[k]["applies"] for k in changes if k in server_settings.BY_KEY}),
+                    "warnings": server_settings.id_warnings(changes)}
     raise ValueError("Unknown file operation")
 
 

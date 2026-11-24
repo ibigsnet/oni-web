@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterEntries, same, type Entry } from "./settings";
+import { filterEntries, looksLikeId, same, type Entry } from "./settings";
 
 const entry = (key: string, group: string, label: string, description: string): Entry =>
   ({ key, group, label, description, type: "bool", applies: "live", scope: "defaults", default: null, advanced: false });
@@ -26,6 +26,14 @@ describe("settings search", () => {
   it("keeps everything for an empty search and nothing for nonsense", () => {
     expect(find("  ")).toHaveLength(ENTRIES.length);
     expect(find("zzqqxx")).toEqual([]);
+  });
+  it("knows a player ID by its 64 hex digits, in any case, trimmed", () => {
+    const id = "0123456789abcdef".repeat(4);
+    expect(looksLikeId(id)).toBe(true);
+    expect(looksLikeId(` ${id.toUpperCase()} `)).toBe(true);
+    expect(looksLikeId(id.slice(1))).toBe(false);
+    expect(looksLikeId("Player One")).toBe(false);
+    expect(looksLikeId("#3")).toBe(false);
   });
   it("never counts a half-typed number as a value", () => {
     expect(same(NaN, null)).toBe(false);

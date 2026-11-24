@@ -17,6 +17,10 @@ export function filterEntries(query: string, entries: Entry[], groupLabel: (id: 
   return entries.filter((e) => fuzzy.matches(query, e.label, e.description, e.key.replace(/[._]/g, " "), groupLabel(e.group)));
 }
 
+/** A player ID the game can match: 64 hex digits, the player's network key or community ID (any case). The game
+ *  takes anything, so other text is saved, with a warning that it will never match anyone. */
+export const looksLikeId = (id: string) => /^[0-9a-f]{64}$/i.test(id.trim());
+
 const isNaNValue = (x: unknown) => typeof x === "number" && Number.isNaN(x);
 export { isNaNValue };
 
